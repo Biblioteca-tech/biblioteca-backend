@@ -25,4 +25,17 @@ public class ConfigUser {
         }
         return cliente.getSenha().equals(senha);
     }
+    public String deleteUser(Long id) {
+        userRepository.deleteById(id);
+        return "{deleted: " + id + "}";
+    }
+    public Cliente updateUser(Cliente cliente) {
+        Cliente updatedCliente = userRepository.findById(cliente.getId()).orElse(null);
+        updatedCliente.setNome(cliente.getNome());
+        updatedCliente.setCpf(cliente.getCpf());
+        updatedCliente.setTelefone(cliente.getTelefone());
+        updatedCliente.setEmail(cliente.getEmail());
+        updatedCliente.setSenha(cliente.getSenha());
+        return userRepository.save(updatedCliente);
+    }
 }
