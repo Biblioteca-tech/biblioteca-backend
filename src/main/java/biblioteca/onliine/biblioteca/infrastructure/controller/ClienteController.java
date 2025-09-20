@@ -1,10 +1,10 @@
-package biblioteca.onliine.biblioteca.controller;
+package biblioteca.onliine.biblioteca.infrastructure.controller;
 
-import biblioteca.onliine.biblioteca.dto.CadastroResponse;
-import biblioteca.onliine.biblioteca.model.Cliente;
-import biblioteca.onliine.biblioteca.repositories.UserRepository;
-import biblioteca.onliine.biblioteca.service.ConfigUser;
-import biblioteca.onliine.biblioteca.service.EmailService;
+import biblioteca.onliine.biblioteca.domain.dto.CadastroResponse;
+import biblioteca.onliine.biblioteca.domain.entity.Cliente;
+import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
+import biblioteca.onliine.biblioteca.usecase.service.ConfigUser;
+import biblioteca.onliine.biblioteca.usecase.service.EmailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,7 +62,7 @@ public class ClienteController {
         }
 
         cliente.setSenha(null);
-        emailService.enviarEmailLogin(cliente.getEmail(), cliente.getNome());
+        //emailService.enviarEmailLogin(cliente.getEmail(), cliente.getNome());
         return ResponseEntity.status(HttpStatus.OK).body("Login realizado com sucesso");
 
     }

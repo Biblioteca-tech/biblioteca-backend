@@ -1,6 +1,5 @@
-package biblioteca.onliine.biblioteca.model;
+package biblioteca.onliine.biblioteca.domain.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

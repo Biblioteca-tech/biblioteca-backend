@@ -1,6 +1,6 @@
-package biblioteca.onliine.biblioteca.dto;
+package biblioteca.onliine.biblioteca.domain.dto;
 
-import biblioteca.onliine.biblioteca.model.Cliente;
+import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import lombok.Getter;
 import lombok.Setter;
 

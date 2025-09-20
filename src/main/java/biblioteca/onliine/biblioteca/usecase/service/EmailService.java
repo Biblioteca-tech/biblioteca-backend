@@ -1,4 +1,4 @@
-package biblioteca.onliine.biblioteca.service;
+package biblioteca.onliine.biblioteca.usecase.service;
 
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
