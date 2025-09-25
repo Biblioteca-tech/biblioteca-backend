@@ -33,7 +33,6 @@ public class ConfigUser {
         Cliente updatedCliente = userRepository.findById(cliente.getId()).orElse(null);
         updatedCliente.setNome(cliente.getNome());
         updatedCliente.setCpf(cliente.getCpf());
-        updatedCliente.setTelefone(cliente.getTelefone());
         updatedCliente.setEmail(cliente.getEmail());
         updatedCliente.setSenha(cliente.getSenha());
         return userRepository.save(updatedCliente);
