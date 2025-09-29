@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,11 +16,14 @@ public class Carrinho {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Cliente cliente;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Livro> itens = new ArrayList<>();
 
-    @OneToMany(mappedBy = "carrinho", cascade = CascadeType.ALL)
-    private List<ItemCarrinho> itens;
+    private double valorTotal = 0.0;
 
-    private double valorTotal;
+    public void atualizarTotal() {
+        this.valorTotal = itens.stream()
+                .mapToDouble(e -> e.getPreco() == null ? 0.0 : e.getPreco())
+                .sum();
+    }
 }

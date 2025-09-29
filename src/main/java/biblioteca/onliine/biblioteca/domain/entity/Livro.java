@@ -1,6 +1,8 @@
 package biblioteca.onliine.biblioteca.domain.entity;
 
 import biblioteca.onliine.biblioteca.domain.FormatoLivro;
+import biblioteca.onliine.biblioteca.domain.GeneroLivro;
+import biblioteca.onliine.biblioteca.domain.IdiomaLivro;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,10 +23,10 @@ public class Livro {
     private String autor;
     private String editora;
     private int ano_publicacao;
-    private String genero;
+    private GeneroLivro genero;
     private String sinopse;
-    private String idioma;
-    private double preco;
+    private IdiomaLivro idioma;
+    private Double preco;
 
     @Enumerated(EnumType.STRING)
     private FormatoLivro formato;

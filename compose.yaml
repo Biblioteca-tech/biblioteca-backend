@@ -1,9 +1,19 @@
+version: '3.8'
+
 services:
-  sqlserver:
-    image: 'mcr.microsoft.com/mssql/server:latest'
+  mysql:
+    image: mysql:8.0
+    container_name: meu_mysql
     environment:
-      - 'ACCEPT_EULA=yes'
-      - 'MSSQL_PID=express'
-      - 'MSSQL_SA_PASSWORD=verYs3cret'
+      MYSQL_ROOT_PASSWORD: Souza@2022
+      MYSQL_DATABASE: db_biblioteca
+      MYSQL_USER: biblioteca
+      MYSQL_PASSWORD: Souza@2022
     ports:
-      - '1433'
+      - ':3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  mysql_data:

@@ -1,6 +1,6 @@
 package biblioteca.onliine.biblioteca.domain;
 
-public enum TipoOperacao {
+public enum MeioDeCompra {
     COMPRA,
     ALUGUEL
 }

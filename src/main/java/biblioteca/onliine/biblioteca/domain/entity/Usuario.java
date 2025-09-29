@@ -13,9 +13,9 @@ import java.util.Date;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "pessoa")
+@Table(name = "usuario")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Pessoa {
+public abstract class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,4 +24,6 @@ public abstract class Pessoa {
     private String senha;
     private Date data_nascimento;
     private String cpf;
+
+    public void atualizarSenha(String novaSenha) { this.senha = novaSenha; }
 }
