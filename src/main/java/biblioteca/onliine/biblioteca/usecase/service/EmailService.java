@@ -21,7 +21,6 @@ public class EmailService {
 
         mailSender.send(mensagem);
     }
-
     public void enviarEmailCadastro(String destinatario, String nomeUsuario) {
         SimpleMailMessage mensagem = new SimpleMailMessage();
         mensagem.setTo(destinatario);

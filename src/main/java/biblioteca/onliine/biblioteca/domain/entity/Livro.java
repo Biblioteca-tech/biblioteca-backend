@@ -27,7 +27,6 @@ public class Livro {
     private String sinopse;
     private IdiomaLivro idioma;
     private Double preco;
-
-    @Enumerated(EnumType.STRING)
-    private FormatoLivro formato;
+    private String capaPath;
+    private String pdfPath;
 }

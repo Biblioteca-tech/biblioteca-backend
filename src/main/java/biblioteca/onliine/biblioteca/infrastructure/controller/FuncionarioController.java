@@ -27,7 +27,7 @@ public class FuncionarioController {
             Livro novoLivro = livroService.save(livro);
             return  ResponseEntity.status(HttpStatus.CREATED).body(novoLivro);
         }  catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
         }
     }
 

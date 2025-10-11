@@ -45,7 +45,6 @@ public class ClienteController {
         cadastroResponse.setCliente(clienteSalvo);
         return cadastroResponse;
     }
-
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody Map<String, String> loginRequest) {
         String email = loginRequest.get("email");
@@ -62,7 +61,7 @@ public class ClienteController {
         }
 
         cliente.setSenha(null);
-        //emailService.enviarEmailLogin(cliente.getEmail(), cliente.getNome());
+        emailService.enviarEmailLogin(cliente.getEmail(), cliente.getNome());
         return ResponseEntity.status(HttpStatus.OK).body("Login realizado com sucesso");
 
     }
