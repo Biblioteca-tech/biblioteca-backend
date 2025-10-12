@@ -25,5 +25,7 @@ public abstract class Usuario {
     private Date data_nascimento;
     private String cpf;
 
-    public void atualizarSenha(String novaSenha) { this.senha = novaSenha; }
+    public void atualizarSenha(String senha) {
+        this.senha = senha;
+    }
 }

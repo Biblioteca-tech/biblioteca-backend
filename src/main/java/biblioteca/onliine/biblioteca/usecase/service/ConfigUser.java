@@ -1,6 +1,7 @@
 package biblioteca.onliine.biblioteca.usecase.service;
 
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
+import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
 import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
 import org.springframework.stereotype.Service;
 

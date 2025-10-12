@@ -1,6 +1,5 @@
 package biblioteca.onliine.biblioteca.domain.entity;
 
-import biblioteca.onliine.biblioteca.domain.FormatoLivro;
 import biblioteca.onliine.biblioteca.domain.MeioPagamento;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -16,6 +15,5 @@ public class Pagamento {
     private Long id;
     private Double valor;
 
-    @Enumerated(EnumType.STRING)
-    private MeioPagamento meioPagamento;
+    @Enumerated(EnumType.STRING)    private MeioPagamento meioPagamento;
 }

@@ -9,6 +9,9 @@ import lombok.Setter;
 @Entity
 @Table(name = "cliente")
 public class Cliente extends Usuario {
-    @OneToOne(cascade = CascadeType.ALL)
-    private Carrinho carrinho;
+
+    @Override
+    public void atualizarSenha(String senha) {
+        this.setSenha(senha);
+    }
 }

@@ -17,4 +17,11 @@ import java.time.LocalDate;
 @Table(name = "funcionario")
 public class Funcionario extends Usuario {
     private LocalDate dataAdmissao;
+    private String numeroTelefone;
+    private String endereco;
+
+    @Override
+    public void atualizarSenha(String senha) {
+        this.setSenha(senha);
+    }
 }

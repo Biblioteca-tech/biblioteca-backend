@@ -1,7 +1,13 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
+import biblioteca.onliine.biblioteca.domain.dto.CadastroFuncionario;
+import biblioteca.onliine.biblioteca.domain.dto.CadastroResponse;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
+import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
+import biblioteca.onliine.biblioteca.domain.entity.Venda;
+import biblioteca.onliine.biblioteca.domain.port.repository.AdmRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import biblioteca.onliine.biblioteca.usecase.service.ConfigUser;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,10 +20,14 @@ public class AdmController {
 
     UserRepository userRepository;
     ConfigUser  configUser;
+    AdmRepository admRepository;
+    VendaRepository vendaRepository;
 
-    public AdmController(UserRepository userRepository,  ConfigUser configUser) {
+    public AdmController(UserRepository userRepository,  ConfigUser configUser,  AdmRepository admRepository,   VendaRepository vendaRepository) {
         this.userRepository = userRepository;
         this.configUser = configUser;
+        this.admRepository = admRepository;
+        this.vendaRepository = vendaRepository;
     }
 
     @GetMapping("/cliente")
@@ -36,9 +46,29 @@ public class AdmController {
             return "{deleted: Resource not found}";
         }
     }
+    @PostMapping("/cadastro-funcionario")
+    public CadastroFuncionario cadastroUsuario(@RequestBody Funcionario funcionario) {
+        CadastroFuncionario cadastroFuncionario = new CadastroFuncionario();
+        if (admRepository.existsByEmail(funcionario.getEmail())) {
+            cadastroFuncionario.setSucesso(false);
+            cadastroFuncionario.setMensagem("Usuario já existe");
+            return cadastroFuncionario;
+        }
+        Funcionario funcionarioSalvo = admRepository.save(funcionario);
 
-    @PutMapping("/update")
-    public Cliente updateUser(@RequestBody Cliente cliente) {
-        return configUser.updateUser(cliente);
+        cadastroFuncionario.setSucesso(true);
+        cadastroFuncionario.setMensagem("Cliente cadastrado com sucesso");
+        cadastroFuncionario.setFuncionario(funcionarioSalvo);
+        return cadastroFuncionario;
     }
+    @GetMapping("/buscar-funcionario")
+    public List<Funcionario> buscarFuncionarios() {
+        return admRepository.findAll();
+    }
+
+    @GetMapping("/historico-vendas")
+    public List<Venda> buscarVendas() {
+        return vendaRepository.findAll();
+    }
+
 }

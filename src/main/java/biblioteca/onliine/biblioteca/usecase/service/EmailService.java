@@ -15,18 +15,27 @@ public class EmailService {
     public void enviarEmailLogin(String destinatario, String nomeUsuario) {
         SimpleMailMessage mensagem = new SimpleMailMessage();
         mensagem.setTo(destinatario);
-        mensagem.setSubject("Login realizado com sucesso ✅");
+        mensagem.setSubject("Login realizado com sucesso!");
         mensagem.setText("Olá, " + nomeUsuario + "!\n\nSeu login foi realizado com sucesso em nossa plataforma.\n\nSe não foi você, entre em contato imediatamente.");
-        mensagem.setFrom("bibliotecaMedic@gmail.com");
+        mensagem.setFrom("medic.projetos@gmail.com");
 
         mailSender.send(mensagem);
     }
     public void enviarEmailCadastro(String destinatario, String nomeUsuario) {
         SimpleMailMessage mensagem = new SimpleMailMessage();
         mensagem.setTo(destinatario);
-        mensagem.setSubject("Cadastro realizado com sucesso 🎉");
+        mensagem.setSubject("Cadastro realizado com sucesso!");
         mensagem.setText("Olá, " + nomeUsuario + "!\n\nSeu cadastro foi realizado com sucesso em nossa plataforma!! Leia bastante livros e se divirta ao máximo.\n\nSe não foi você, entre em contato imediatamente.");
-        mensagem.setFrom("bibliotecaMedic@gmail.com");
+        mensagem.setFrom("medic.projetos@gmail.com");
+
+        mailSender.send(mensagem);
+    }
+    public void enviarEmailTrocaSenha(String destinatario, String nomeUsuario) {
+        SimpleMailMessage mensagem = new SimpleMailMessage();
+        mensagem.setTo(destinatario);
+        mensagem.setSubject("Senha atualizada com sucesso!");
+        mensagem.setText("Olá, " + nomeUsuario + "! \nSua senha foi alterada com sucesso!");
+        mensagem.setFrom("medic.projetos@gmail.com");
 
         mailSender.send(mensagem);
     }

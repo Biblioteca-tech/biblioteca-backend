@@ -5,4 +5,9 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "administrador")
-public class Administrador extends Usuario {}
+public class Administrador extends Usuario {
+    @Override
+    public void atualizarSenha(String senha) {
+        this.setSenha(senha);
+    }
+}
