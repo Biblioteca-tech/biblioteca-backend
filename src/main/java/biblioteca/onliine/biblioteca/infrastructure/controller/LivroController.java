@@ -4,6 +4,7 @@ import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
 import biblioteca.onliine.biblioteca.usecase.service.LivroService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +40,11 @@ public class LivroController {
                                                  @RequestPart("capa") MultipartFile capa,
                                                  @RequestPart("pdf") MultipartFile pdf) throws IOException {
         Livro livro = objectMapper.readValue(livrojson, Livro.class);
+
+        if (livro.getPreco() == null || livro.getPreco() < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Valor nao pode ser negativo");
+        }
+
         String uploadDir = "/home/iarley/Downloads/biblioteca/uploads/";
         Files.createDirectories(Paths.get(uploadDir));
 
@@ -53,7 +59,6 @@ public class LivroController {
 
         livro.setCapaPath(capaFileName);
         livro.setPdfPath(pdfFileName);
-
         livroRepository.save(livro);
         return ResponseEntity.ok("Livro cadastrado com sucesso!");
     }

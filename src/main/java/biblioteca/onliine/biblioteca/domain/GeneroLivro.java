@@ -12,6 +12,6 @@ public enum GeneroLivro {
     DOCUMENTARIO,
     ACAO,
     SUSPENSE,
-    DORAMA;
-
+    DORAMA,
+    INFANTIL;
 }

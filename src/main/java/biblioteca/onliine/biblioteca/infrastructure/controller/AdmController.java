@@ -4,11 +4,14 @@ import biblioteca.onliine.biblioteca.domain.dto.CadastroFuncionario;
 import biblioteca.onliine.biblioteca.domain.dto.CadastroResponse;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
+import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
 import biblioteca.onliine.biblioteca.domain.port.repository.AdmRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import biblioteca.onliine.biblioteca.usecase.service.ConfigUser;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.reactive.ReactiveOAuth2ResourceServerAutoConfiguration;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,6 +72,12 @@ public class AdmController {
     @GetMapping("/historico-vendas")
     public List<Venda> buscarVendas() {
         return vendaRepository.findAll();
+    }
+    @DeleteMapping("/deletar-historico/{id}")
+    public ResponseEntity<?> deletarVenda(@PathVariable Long id) {
+        Optional<Venda> vendaOptional = vendaRepository.findById(id);
+        vendaOptional.ifPresent(venda -> vendaRepository.delete(venda));
+        return ResponseEntity.ok().body("Livro deletado com sucesso");
     }
 
 }

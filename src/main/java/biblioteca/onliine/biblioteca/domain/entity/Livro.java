@@ -3,6 +3,8 @@ package biblioteca.onliine.biblioteca.domain.entity;
 import biblioteca.onliine.biblioteca.domain.FormatoLivro;
 import biblioteca.onliine.biblioteca.domain.GeneroLivro;
 import biblioteca.onliine.biblioteca.domain.IdiomaLivro;
+import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.port.repository.Ativavel;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +16,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Livro {
+public class Livro implements Ativavel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,4 +31,19 @@ public class Livro {
     private Double preco;
     private String capaPath;
     private String pdfPath;
+
+    private Status status = Status.ATIVO;
+
+    @Override
+    public void ativar() {
+        this.status = Status.ATIVO;
+    }
+    @Override
+    public void desativar() {
+        this.status = Status.INATIVO;
+    }
+    @Override
+    public boolean isAtivo() {
+        return this.status == Status.ATIVO;
+    }
 }
