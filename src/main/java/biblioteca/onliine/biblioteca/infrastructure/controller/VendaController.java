@@ -4,7 +4,6 @@ import biblioteca.onliine.biblioteca.domain.entity.Administrador;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
-import biblioteca.onliine.biblioteca.domain.port.repository.AdmRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
@@ -24,7 +23,6 @@ public class VendaController {
     UserRepository userRepository;
     VendaRepository vendaRepository;
     LivroRepository livroRepository;
-    AdmRepository admRepository;
 
     public VendaController(UserRepository userRepository, VendaRepository vendaRepository, LivroRepository livroRepository) {
         this.userRepository = userRepository;

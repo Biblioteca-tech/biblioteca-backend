@@ -7,10 +7,12 @@ import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
 import biblioteca.onliine.biblioteca.domain.port.repository.AdmRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import biblioteca.onliine.biblioteca.usecase.service.ConfigUser;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.reactive.ReactiveOAuth2ResourceServerAutoConfiguration;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,18 +23,19 @@ import java.util.Optional;
 @RequestMapping("/adm")
 public class AdmController {
 
-    UserRepository userRepository;
-    ConfigUser  configUser;
-    AdmRepository admRepository;
-    VendaRepository vendaRepository;
+    private final UserRepository userRepository;
+    private final AdmRepository admRepository;
+    private final VendaRepository vendaRepository;
+    private final LivroRepository livroRepository;
 
-    public AdmController(UserRepository userRepository,  ConfigUser configUser,  AdmRepository admRepository,   VendaRepository vendaRepository) {
+    public AdmController(UserRepository userRepository,  AdmRepository admRepository,   VendaRepository vendaRepository,  LivroRepository livroRepository) {
         this.userRepository = userRepository;
-        this.configUser = configUser;
         this.admRepository = admRepository;
         this.vendaRepository = vendaRepository;
+        this.livroRepository = livroRepository;
     }
 
+    // BUSCAR TODOS OS CLIENTES //
     @GetMapping("/cliente")
     public List<Cliente> buscarClientes() {
         return userRepository.findAll();
@@ -49,6 +52,8 @@ public class AdmController {
             return "{deleted: Resource not found}";
         }
     }
+
+    // CADASTRO DE FUNCIONARIO //
     @PostMapping("/cadastro-funcionario")
     public CadastroFuncionario cadastroUsuario(@RequestBody Funcionario funcionario) {
         CadastroFuncionario cadastroFuncionario = new CadastroFuncionario();
@@ -64,20 +69,47 @@ public class AdmController {
         cadastroFuncionario.setFuncionario(funcionarioSalvo);
         return cadastroFuncionario;
     }
+
+    // BUSCAR OS FUNCIONARIOS REGISTRADOS //
     @GetMapping("/buscar-funcionario")
     public List<Funcionario> buscarFuncionarios() {
         return admRepository.findAll();
     }
 
+    // EXIBIR HISTORICO DE LIVROS VENDIDOS //
     @GetMapping("/historico-vendas")
     public List<Venda> buscarVendas() {
         return vendaRepository.findAll();
     }
+    // DELETAR HISTORICO LIVRO //
     @DeleteMapping("/deletar-historico/{id}")
     public ResponseEntity<?> deletarVenda(@PathVariable Long id) {
         Optional<Venda> vendaOptional = vendaRepository.findById(id);
-        vendaOptional.ifPresent(venda -> vendaRepository.delete(venda));
+        vendaOptional.ifPresent(vendaRepository::delete);
         return ResponseEntity.ok().body("Livro deletado com sucesso");
+    }
+    // ATIVAR LIVRO //
+    @PutMapping(value = "/ativar/{id}")
+    public ResponseEntity<String> ativarLivro(@PathVariable Long id) {
+        return livroRepository.findById(id)
+                .map(livro -> {
+                    livro.ativar();
+                    livroRepository.save(livro);
+                    return ResponseEntity.ok("Livro reativado com sucesso!");
+                })
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado"));
+    }
+
+    // DESATIVAR LIVRO //
+    @PutMapping(value = "/desativar/{id}")
+    public ResponseEntity<String> desativarLivro(@PathVariable Long id) {
+        return livroRepository.findById(id)
+                .map(livro -> {
+                    livro.desativar();
+                    livroRepository.save(livro);
+                    return ResponseEntity.ok("Livro desativado com sucesso!");
+                })
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado"));
     }
 
 }

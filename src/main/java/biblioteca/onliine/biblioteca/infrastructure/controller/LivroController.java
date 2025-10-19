@@ -1,40 +1,53 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
+import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.dto.LivroDTO;
+import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
+import biblioteca.onliine.biblioteca.domain.entity.Venda;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import biblioteca.onliine.biblioteca.usecase.service.LivroService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @RestController
 @RequestMapping("/livros")
 public class LivroController {
 
-    LivroRepository livroRepository;
-    LivroService livroService;
-    ObjectMapper objectMapper;
+    private final LivroRepository livroRepository;
+    private final LivroService livroService;
+    private final ObjectMapper objectMapper;
+    private final VendaRepository vendaRepository;
+    private final UserRepository userRepository;
 
-    public LivroController(LivroRepository livroRepository,  ObjectMapper objectMapper,  LivroService livroService) {
+    public LivroController(LivroRepository livroRepository,  ObjectMapper objectMapper,  LivroService livroService, VendaRepository vendaRepository, UserRepository userRepository) {
         this.livroRepository = livroRepository;
         this.objectMapper = objectMapper;
         this.livroService = livroService;
+        this.vendaRepository = vendaRepository;
+        this.userRepository = userRepository;
     }
-
-    @GetMapping(value = "/todos")
-    public List<Livro> getLivros() {
-        return livroRepository.findAll();
-    }
-
     @PostMapping(value = "/cadastrar", consumes = {"multipart/form-data"})
     public ResponseEntity<String> cadastrarLivro(@RequestPart("livro") String livrojson,
                                                  @RequestPart("capa") MultipartFile capa,
@@ -48,8 +61,8 @@ public class LivroController {
         String uploadDir = "/home/iarley/Downloads/biblioteca/uploads/";
         Files.createDirectories(Paths.get(uploadDir));
 
-        String capaFileName = System.currentTimeMillis() + "_" + capa.getOriginalFilename();
-        String pdfFileName = System.currentTimeMillis() + "_" + pdf.getOriginalFilename();
+        String capaFileName = System.currentTimeMillis() + "_" + capa.getOriginalFilename().replaceAll("","_");
+        String pdfFileName = System.currentTimeMillis() + "_" + pdf.getOriginalFilename().replaceAll("","_");
 
         String capaPath = uploadDir + capaFileName;
         String pdfPath = uploadDir + pdfFileName;
@@ -66,5 +79,45 @@ public class LivroController {
     @DeleteMapping(value = "/deletar/{id}")
     public ResponseEntity<String> deletarLivro(@PathVariable("id") Long id) {
         return livroService.delete(id);
+    }
+
+    @GetMapping(value = "/ativos")
+    public List<LivroDTO> getLivrosAtivos(@AuthenticationPrincipal UserDetails user) {
+        Cliente cliente = userRepository.findByEmail(user.getUsername());
+        return livroRepository.findByStatusLivro(Status.ATIVO).stream()
+                .map(livro -> {
+                    boolean comprou = vendaRepository.existsByClienteIdAndLivroId(cliente.getId(), livro.getId());
+                    return new LivroDTO(livro, comprou);
+                })
+                .collect(Collectors.toList());
+    }
+    @GetMapping(value = "/pdf/{livroId}")
+    public ResponseEntity<Resource> abrirPdf(@PathVariable Long livroId,
+                                             @AuthenticationPrincipal UserDetails userDetails) throws MalformedURLException {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Cliente usuario = userRepository.findByEmail(userDetails.getUsername());
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Optional<Livro> livroOpt = livroRepository.findById(livroId);
+        if (livroOpt.isEmpty()) return ResponseEntity.notFound().build();
+
+        Livro livro = livroOpt.get();
+        boolean comprou = vendaRepository.existsByClienteIdAndLivroId(usuario.getId(), livro.getId());
+        if (!comprou) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        File file = new File("/home/iarley/Downloads/biblioteca/uploads/" + livro.getPdfPath());
+        if (!file.exists()) return ResponseEntity.notFound().build();
+
+        UrlResource resource = new UrlResource(file.toURI());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + livro.getPdfPath() + "\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(resource);
     }
 }
