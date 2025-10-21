@@ -1,4 +1,4 @@
-package biblioteca.onliine.biblioteca.usecase.service;
+package biblioteca.onliine.biblioteca.infrastructure.seguranca;
 
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -23,10 +23,17 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (cliente == null) {
             throw new UsernameNotFoundException(email);
         }
+
+        // Suponto que Cliente tenha um método getRoles() que retorna Set<String> ou List<String>
+        List<SimpleGrantedAuthority> authorities = cliente.getRoles().stream()
+                .map(SimpleGrantedAuthority::new) // cada role precisa ser "ROLE_ADMIN", "ROLE_FUNCIONARIO", etc
+                .toList();
+
         return new User(
                 cliente.getEmail(),
                 cliente.getSenha(),
-                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                authorities
         );
     }
+
 }

@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -24,6 +26,9 @@ public abstract class Usuario {
     private String senha;
     private Date data_nascimento;
     private String cpf;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<String> roles = new HashSet<>();
 
     public void atualizarSenha(String senha) {
         this.senha = senha;

@@ -1,7 +1,6 @@
-package biblioteca.onliine.biblioteca.interfaces.config;
+package biblioteca.onliine.biblioteca.infrastructure.seguranca.auth;
 
-import biblioteca.onliine.biblioteca.infrastructure.seguranca.JwtAuthenticationFilter;
-import biblioteca.onliine.biblioteca.usecase.service.CustomUserDetailsService;
+import biblioteca.onliine.biblioteca.infrastructure.seguranca.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,38 +15,38 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
-    private final CustomUserDetailsService  customUserDetailsService;
-    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final UserDetailsServiceImpl userDetailsService;
+
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, AuthenticationManager authManager) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/cliente/cadastro", "/cliente/login").permitAll()
-                        .requestMatchers("/adm/**").permitAll()
-                        .requestMatchers("/livros/**").permitAll()
-                        .requestMatchers("/funcionario/**").permitAll()
-                        .requestMatchers("/venda/**").permitAll()
-                        .requestMatchers("/cliente/**").permitAll()
+                        .requestMatchers(AccessRoutesUtil.PUBLIC_ROUTES).permitAll()
+                        .requestMatchers(AccessRoutesUtil.CLIENT_ROUTES).hasRole("CLIENTE")
+                        .requestMatchers(AccessRoutesUtil.FUNCIONARIO_ROUTES).hasAnyRole("FUNCIONARIO", "ADMIN")
+                        .requestMatchers(AccessRoutesUtil.ADMIN_ROUTES).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
+                .addFilter(new JWTAuthenticationFilter(authManager))
+                .addFilter(new JWTAuthorizationFilter(authManager))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(customUserDetailsService);
+        authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
