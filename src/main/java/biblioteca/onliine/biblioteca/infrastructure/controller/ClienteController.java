@@ -7,7 +7,7 @@ import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
 import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
-import biblioteca.onliine.biblioteca.infrastructure.seguranca.auth.JwtService;
+import biblioteca.onliine.biblioteca.infrastructure.seguranca.JwtService;
 import biblioteca.onliine.biblioteca.usecase.service.ConfigUser;
 import biblioteca.onliine.biblioteca.usecase.service.EmailService;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,7 +32,7 @@ public class ClienteController {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
+    private final JwtService  jwtService;
     private final VendaRepository vendaRepository;
 
 
@@ -52,13 +51,9 @@ public class ClienteController {
         if (userRepository.existsByEmail(cliente.getEmail())) {
             return ResponseEntity.badRequest().body("Usuário já existe");
         }
-
-        // 🔥 Criptografa antes de salvar
         cliente.setSenha(passwordEncoder.encode(cliente.getSenha()));
-
         Cliente clienteSalvo = userRepository.save(cliente);
         emailService.enviarEmailCadastro(cliente.getEmail(), cliente.getNome());
-
         return ResponseEntity.ok(clienteSalvo);
     }
 
@@ -67,22 +62,12 @@ public class ClienteController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(login.getEmail(), login.getSenha())
         );
-
         var userDetails = (UserDetails) authentication.getPrincipal();
-
-        // Aqui pegamos o papel (role) do usuário autenticado
-        String role = userDetails.getAuthorities().stream()
-                .findFirst()
-                .map(GrantedAuthority::getAuthority)
-                .orElse("ROLE_CLIENTE"); // fallback
-
-        // Agora o token inclui o email + role
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken(userDetails.getUsername());
 
         return ResponseEntity.ok(Map.of(
                 "message", "Login efetuado com sucesso!",
-                "token", token,
-                "role", role
+                "Token", token
         ));
     }
 
