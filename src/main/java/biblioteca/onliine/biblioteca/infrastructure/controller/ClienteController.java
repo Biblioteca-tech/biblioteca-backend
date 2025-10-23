@@ -2,12 +2,14 @@ package biblioteca.onliine.biblioteca.infrastructure.controller;
 
 import biblioteca.onliine.biblioteca.domain.dto.LivroDTO;
 import biblioteca.onliine.biblioteca.domain.dto.LoginDTO;
+import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
 import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import biblioteca.onliine.biblioteca.infrastructure.seguranca.JwtService;
+import biblioteca.onliine.biblioteca.usecase.service.AluguelService;
 import biblioteca.onliine.biblioteca.usecase.service.ConfigUser;
 import biblioteca.onliine.biblioteca.usecase.service.EmailService;
 import org.springframework.http.HttpStatus;
@@ -34,9 +36,10 @@ public class ClienteController {
     private final AuthenticationManager authenticationManager;
     private final JwtService  jwtService;
     private final VendaRepository vendaRepository;
+    private final AluguelService aluguelService;
 
 
-    public ClienteController(UserRepository userRepository, ConfigUser configUser, EmailService emailService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager,  JwtService jwtService,  VendaRepository vendaRepository) {
+    public ClienteController(UserRepository userRepository, ConfigUser configUser, EmailService emailService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager,  JwtService jwtService,  VendaRepository vendaRepository,  AluguelService aluguelService) {
         this.userRepository = userRepository;
         this.configUser = configUser;
         this.emailService = emailService;
@@ -44,6 +47,7 @@ public class ClienteController {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.vendaRepository = vendaRepository;
+        this.aluguelService = aluguelService;
     }
 
     @PostMapping("/cadastro")
@@ -98,5 +102,27 @@ public class ClienteController {
                     return new LivroDTO(livro, true);
                 })
                 .collect(Collectors.toList());
+    }
+    @PostMapping("/alugar")
+    public ResponseEntity<?> alugarLivro(
+            @RequestParam Long clienteId,
+            @RequestParam Long livroId,
+            @RequestParam(defaultValue = "7") int dias) {
+        try {
+            Aluguel aluguel = aluguelService.alugarLivro(clienteId, livroId, dias);
+            return ResponseEntity.ok(aluguel);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/devolver")
+    public ResponseEntity<?> devolverLivro(@RequestParam Long aluguelId) {
+        try {
+            Aluguel aluguel = aluguelService.devolverLivro(aluguelId);
+            return ResponseEntity.ok(aluguel);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

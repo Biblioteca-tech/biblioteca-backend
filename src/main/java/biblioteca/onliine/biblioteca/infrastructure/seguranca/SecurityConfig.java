@@ -1,6 +1,5 @@
-package biblioteca.onliine.biblioteca.interfaces.config;
+package biblioteca.onliine.biblioteca.infrastructure.seguranca;
 
-import biblioteca.onliine.biblioteca.infrastructure.seguranca.JwtAuthenticationFilter;
 import biblioteca.onliine.biblioteca.usecase.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -37,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/funcionario/**").permitAll()
                         .requestMatchers("/venda/**").permitAll()
                         .requestMatchers("/cliente/**").permitAll()
+                        .requestMatchers("/livros/ativos").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

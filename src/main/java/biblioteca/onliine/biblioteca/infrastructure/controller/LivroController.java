@@ -1,10 +1,8 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
 import biblioteca.onliine.biblioteca.domain.Status;
-import biblioteca.onliine.biblioteca.domain.dto.LivroDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
-import biblioteca.onliine.biblioteca.domain.entity.Venda;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
@@ -28,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @RestController
@@ -41,13 +38,14 @@ public class LivroController {
     private final VendaRepository vendaRepository;
     private final UserRepository userRepository;
 
-    public LivroController(LivroRepository livroRepository,  ObjectMapper objectMapper,  LivroService livroService, VendaRepository vendaRepository, UserRepository userRepository) {
+    public LivroController(LivroRepository livroRepository, ObjectMapper objectMapper, LivroService livroService, VendaRepository vendaRepository, UserRepository userRepository) {
         this.livroRepository = livroRepository;
         this.objectMapper = objectMapper;
         this.livroService = livroService;
         this.vendaRepository = vendaRepository;
         this.userRepository = userRepository;
     }
+
     @PostMapping(value = "/cadastrar", consumes = {"multipart/form-data"})
     public ResponseEntity<String> cadastrarLivro(@RequestPart("livro") String livrojson,
                                                  @RequestPart("capa") MultipartFile capa,
@@ -61,8 +59,8 @@ public class LivroController {
         String uploadDir = "/home/iarley/Downloads/biblioteca/uploads/";
         Files.createDirectories(Paths.get(uploadDir));
 
-        String capaFileName = System.currentTimeMillis() + "_" + capa.getOriginalFilename().replaceAll("","_");
-        String pdfFileName = System.currentTimeMillis() + "_" + pdf.getOriginalFilename().replaceAll("","_");
+        String capaFileName = System.currentTimeMillis() + "_" + capa.getOriginalFilename().replaceAll("", "_");
+        String pdfFileName = System.currentTimeMillis() + "_" + pdf.getOriginalFilename().replaceAll("", "_");
 
         String capaPath = uploadDir + capaFileName;
         String pdfPath = uploadDir + pdfFileName;
@@ -81,16 +79,11 @@ public class LivroController {
         return livroService.delete(id);
     }
 
-    @GetMapping(value = "/ativos")
-    public List<LivroDTO> getLivrosAtivos(@AuthenticationPrincipal UserDetails user) {
-        Cliente cliente = userRepository.findByEmail(user.getUsername());
-        return livroRepository.findByStatusLivro(Status.ATIVO).stream()
-                .map(livro -> {
-                    boolean comprou = vendaRepository.existsByClienteIdAndLivroId(cliente.getId(), livro.getId());
-                    return new LivroDTO(livro, comprou);
-                })
-                .collect(Collectors.toList());
+    @GetMapping("/ativos")
+    public List<Livro> getLivrosAtivos() {
+        return livroRepository.findByStatusLivro(Status.ATIVO);
     }
+
     @GetMapping(value = "/pdf/{livroId}")
     public ResponseEntity<Resource> abrirPdf(@PathVariable Long livroId,
                                              @AuthenticationPrincipal UserDetails userDetails) throws MalformedURLException {
