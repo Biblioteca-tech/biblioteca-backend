@@ -17,13 +17,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -34,12 +37,12 @@ public class ClienteController {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final JwtService  jwtService;
+    private final JwtService jwtService;
     private final VendaRepository vendaRepository;
     private final AluguelService aluguelService;
 
 
-    public ClienteController(UserRepository userRepository, ConfigUser configUser, EmailService emailService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager,  JwtService jwtService,  VendaRepository vendaRepository,  AluguelService aluguelService) {
+    public ClienteController(UserRepository userRepository, ConfigUser configUser, EmailService emailService, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService, VendaRepository vendaRepository, AluguelService aluguelService) {
         this.userRepository = userRepository;
         this.configUser = configUser;
         this.emailService = emailService;
@@ -56,6 +59,7 @@ public class ClienteController {
             return ResponseEntity.badRequest().body("Usuário já existe");
         }
         cliente.setSenha(passwordEncoder.encode(cliente.getSenha()));
+        cliente.getRoles().add("ROLE_CLIENTE");
         Cliente clienteSalvo = userRepository.save(cliente);
         emailService.enviarEmailCadastro(cliente.getEmail(), cliente.getNome());
         return ResponseEntity.ok(clienteSalvo);
@@ -63,18 +67,18 @@ public class ClienteController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO login) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(login.getEmail(), login.getSenha())
-        );
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(login.getEmail(), login.getSenha()));
         var userDetails = (UserDetails) authentication.getPrincipal();
-        String token = jwtService.generateToken(userDetails.getUsername());
+        List<String> rolesList = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
 
-        return ResponseEntity.ok(Map.of(
-                "message", "Login efetuado com sucesso!",
-                "Token", token
-        ));
+        Set<String> roles = new HashSet<>(rolesList);
+
+        String token = jwtService.generateToken(userDetails.getUsername(), roles);
+
+        return ResponseEntity.ok(Map.of("message", "Login efetuado com sucesso!", "Token", token));
     }
 
+    //Ainda não finalizado
     @PutMapping("/trocar-senha/{id}")
     public ResponseEntity<String> trocarSenha(@PathVariable("id") Long id, @RequestBody Map<String, String> body) {
         String senhaAtual = body.get("senhaAtual");
@@ -92,22 +96,19 @@ public class ClienteController {
         emailService.enviarEmailTrocaSenha(cliente.getEmail(), cliente.getNome());
         return ResponseEntity.ok("Senha aterada com sucesso.");
     }
+
     @GetMapping(value = "/meus-livros")
     public List<LivroDTO> getLivrosComprados(@AuthenticationPrincipal UserDetails userDetails) {
         Cliente cliente = userRepository.findByEmail(userDetails.getUsername());
         List<Venda> vendas = vendaRepository.findByClienteId(cliente.getId());
-        return vendas.stream()
-                .map(venda -> {
-                    Livro livro = venda.getLivro();
-                    return new LivroDTO(livro, true);
-                })
-                .collect(Collectors.toList());
+        return vendas.stream().map(venda -> {
+            Livro livro = venda.getLivro();
+            return new LivroDTO(livro, true);
+        }).collect(Collectors.toList());
     }
+
     @PostMapping("/alugar")
-    public ResponseEntity<?> alugarLivro(
-            @RequestParam Long clienteId,
-            @RequestParam Long livroId,
-            @RequestParam(defaultValue = "7") int dias) {
+    public ResponseEntity<?> alugarLivro(@RequestParam Long clienteId, @RequestParam Long livroId, @RequestParam(defaultValue = "7") int dias) {
         try {
             Aluguel aluguel = aluguelService.alugarLivro(clienteId, livroId, dias);
             return ResponseEntity.ok(aluguel);

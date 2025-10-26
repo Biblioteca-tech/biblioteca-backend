@@ -7,7 +7,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Set;
 
 @Service
 public class JwtService {
@@ -15,9 +17,10 @@ public class JwtService {
 
     private final Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
 
-    public String generateToken(String email) {
+    public String generateToken(String email, Set<String> roles) {
         return JWT.create()
                 .withSubject(email)
+                .withClaim("roles", new ArrayList<>(roles))
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // expira em 24h
                 .sign(algorithm);

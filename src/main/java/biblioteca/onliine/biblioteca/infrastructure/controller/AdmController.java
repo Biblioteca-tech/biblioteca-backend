@@ -6,14 +6,14 @@ import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
-import biblioteca.onliine.biblioteca.domain.port.repository.AdmRepository;
-import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
-import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
-import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.*;
+import biblioteca.onliine.biblioteca.infrastructure.seguranca.JwtService;
 import biblioteca.onliine.biblioteca.usecase.service.ConfigUser;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.reactive.ReactiveOAuth2ResourceServerAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,12 +27,16 @@ public class AdmController {
     private final AdmRepository admRepository;
     private final VendaRepository vendaRepository;
     private final LivroRepository livroRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final FuncionarioRepository funcionarioRepository;
 
-    public AdmController(UserRepository userRepository,  AdmRepository admRepository,   VendaRepository vendaRepository,  LivroRepository livroRepository) {
+    public AdmController(UserRepository userRepository, AdmRepository admRepository, VendaRepository vendaRepository, LivroRepository livroRepository, PasswordEncoder passwordEncoder, FuncionarioRepository funcionarioRepository, AuthenticationManager authenticationManager, JwtService jwtService) {
         this.userRepository = userRepository;
         this.admRepository = admRepository;
         this.vendaRepository = vendaRepository;
         this.livroRepository = livroRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.funcionarioRepository = funcionarioRepository;
     }
 
     // BUSCAR TODOS OS CLIENTES //
@@ -54,21 +58,19 @@ public class AdmController {
     }
 
     // CADASTRO DE FUNCIONARIO //
-    @PostMapping("/cadastro-funcionario")
-    public CadastroFuncionario cadastroUsuario(@RequestBody Funcionario funcionario) {
-        CadastroFuncionario cadastroFuncionario = new CadastroFuncionario();
-        if (admRepository.existsByEmail(funcionario.getEmail())) {
-            cadastroFuncionario.setSucesso(false);
-            cadastroFuncionario.setMensagem("Usuario já existe");
-            return cadastroFuncionario;
+    @PostMapping("/cadastrar-funcionario")
+    public ResponseEntity<?> cadastrarFuncionario(@RequestBody Funcionario funcionario) {
+        if (userRepository.existsByEmail(funcionario.getEmail())) {
+            return ResponseEntity.badRequest().body("Funcionario já existe");
         }
-        Funcionario funcionarioSalvo = admRepository.save(funcionario);
 
-        cadastroFuncionario.setSucesso(true);
-        cadastroFuncionario.setMensagem("Cliente cadastrado com sucesso");
-        cadastroFuncionario.setFuncionario(funcionarioSalvo);
-        return cadastroFuncionario;
+        funcionario.setSenha(passwordEncoder.encode(funcionario.getSenha()));
+        funcionario.getRoles().add("ROLE_FUNCIONARIO");
+        Funcionario funcionarioSalvo = funcionarioRepository.save(funcionario);
+
+        return ResponseEntity.ok(funcionarioSalvo);
     }
+
 
     // BUSCAR OS FUNCIONARIOS REGISTRADOS //
     @GetMapping("/buscar-funcionario")

@@ -30,6 +30,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/login", "/auth/cadastro-cliente").permitAll()
                         .requestMatchers("/cliente/cadastro", "/cliente/login").permitAll()
                         .requestMatchers("/adm/**").permitAll()
                         .requestMatchers("/livros/**").permitAll()
@@ -37,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/venda/**").permitAll()
                         .requestMatchers("/cliente/**").permitAll()
                         .requestMatchers("/livros/ativos").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
