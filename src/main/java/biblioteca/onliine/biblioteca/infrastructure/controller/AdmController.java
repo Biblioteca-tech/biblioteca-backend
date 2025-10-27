@@ -57,21 +57,6 @@ public class AdmController {
         }
     }
 
-    // CADASTRO DE FUNCIONARIO //
-    @PostMapping("/cadastrar-funcionario")
-    public ResponseEntity<?> cadastrarFuncionario(@RequestBody Funcionario funcionario) {
-        if (userRepository.existsByEmail(funcionario.getEmail())) {
-            return ResponseEntity.badRequest().body("Funcionario já existe");
-        }
-
-        funcionario.setSenha(passwordEncoder.encode(funcionario.getSenha()));
-        funcionario.getRoles().add("ROLE_FUNCIONARIO");
-        Funcionario funcionarioSalvo = funcionarioRepository.save(funcionario);
-
-        return ResponseEntity.ok(funcionarioSalvo);
-    }
-
-
     // BUSCAR OS FUNCIONARIOS REGISTRADOS //
     @GetMapping("/buscar-funcionario")
     public List<Funcionario> buscarFuncionarios() {
@@ -83,6 +68,7 @@ public class AdmController {
     public List<Venda> buscarVendas() {
         return vendaRepository.findAll();
     }
+
     // DELETAR HISTORICO LIVRO //
     @DeleteMapping("/deletar-historico/{id}")
     public ResponseEntity<?> deletarVenda(@PathVariable Long id) {
@@ -90,6 +76,7 @@ public class AdmController {
         vendaOptional.ifPresent(vendaRepository::delete);
         return ResponseEntity.ok().body("Livro deletado com sucesso");
     }
+
     // ATIVAR LIVRO //
     @PutMapping(value = "/ativar/{id}")
     public ResponseEntity<String> ativarLivro(@PathVariable Long id) {

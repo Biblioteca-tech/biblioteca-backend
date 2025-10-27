@@ -11,6 +11,7 @@ import biblioteca.onliine.biblioteca.usecase.service.EmailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,7 +36,7 @@ public class AuthController {
     private final EmailService emailService;
     private final FuncionarioRepository funcionarioRepository;
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService, EmailService emailService,  FuncionarioRepository funcionarioRepository) {
+    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService, EmailService emailService, FuncionarioRepository funcionarioRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
@@ -65,22 +66,19 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Usuário já existe");
         }
         funcionario.setSenha(passwordEncoder.encode(funcionario.getSenha()));
-        funcionario.getRoles().add("ROLE_FUNCIONARIO"); // role padrão
+        funcionario.getRoles().add("ROLE_FUNCIONARIO");
         Funcionario funcionarioSalvo = funcionarioRepository.save(funcionario);
-
-        // enviar email de boas-vindas (opcional)
-        emailService.enviarEmailCadastro(funcionario.getEmail(), funcionario.getNome());
 
         return ResponseEntity.ok(funcionarioSalvo);
     }
+
     // ---------------- Login  ----------------
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO login) {
-        var authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(login.getEmail(), login.getSenha())
-        );
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(login.getEmail(), login.getSenha()));
+        var userDetails = (UserDetails) authentication.getPrincipal();
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
         Set<String> roles = userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)

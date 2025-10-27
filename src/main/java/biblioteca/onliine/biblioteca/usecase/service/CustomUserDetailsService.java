@@ -1,6 +1,8 @@
 package biblioteca.onliine.biblioteca.usecase.service;
 
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
+import biblioteca.onliine.biblioteca.domain.entity.Usuario;
+import biblioteca.onliine.biblioteca.domain.port.repository.AuthRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
@@ -18,23 +20,23 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
-    private final UserRepository userRepository;
+    private final AuthRepository authRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Cliente cliente = userRepository.findByEmail(email);
-        if (cliente == null) {
+        Usuario usuario = authRepository.findByEmail(email);
+        if (usuario == null) {
             throw new UsernameNotFoundException(email);
         }
 
         // Convertendo roles da entidade para GrantedAuthority
-        Set<GrantedAuthority> authorities = cliente.getRoles().stream()
+        Set<GrantedAuthority> authorities = usuario.getRoles().stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toSet());
 
         return new org.springframework.security.core.userdetails.User(
-                cliente.getEmail(),
-                cliente.getSenha(),
+                usuario.getEmail(),
+                usuario.getSenha(),
                 authorities
         );
     }

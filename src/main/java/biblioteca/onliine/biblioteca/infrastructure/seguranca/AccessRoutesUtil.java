@@ -2,12 +2,18 @@ package biblioteca.onliine.biblioteca.infrastructure.seguranca;
 
 public class AccessRoutesUtil {
     public static final String[] ROTAS_LIVRES = {
-            "/cliente/login",
-            "/livros/listar"
+            "/auth/login",
+            "/auth/cadastro",
+            "/auth/cadastrar-funcionario",
+            "/venda/**",
+            "/livros/ativos",
+            "/cliente/**",
     };
     public static final String[] ROTAS_FUNCIONARIO = {
             "/funcionario/**",
-            "/venda/**"
+            "/venda/**",
+            "/livros/cadastrar",
+            "/livros/deletar/{id}"
     };
 
     public static final String[] ROTAS_ADMIN = {
