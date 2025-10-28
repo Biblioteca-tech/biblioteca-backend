@@ -1,20 +1,19 @@
 package biblioteca.onliine.biblioteca.usecase.service;
 
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
-import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
-import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ConfigUser {
 
-    UserRepository userRepository;
-    public ConfigUser(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    ClienteRepository clienteRepository;
+    public ConfigUser(ClienteRepository clienteRepository) {
+        this.clienteRepository = clienteRepository;
     }
 
     public Cliente buscarPorEmail(String email) {
-        return userRepository.findByEmail(email);
+        return clienteRepository.findByEmail(email);
     }
 
     public boolean loginUsuario(Cliente cliente, String senha) {
@@ -27,15 +26,15 @@ public class ConfigUser {
         return cliente.getSenha().equals(senha);
     }
     public String deleteUser(Long id) {
-        userRepository.deleteById(id);
+        clienteRepository.deleteById(id);
         return "{deleted: " + id + "}";
     }
     public Cliente updateUser(Cliente cliente) {
-        Cliente updatedCliente = userRepository.findById(cliente.getId()).orElse(null);
+        Cliente updatedCliente = clienteRepository.findById(cliente.getId()).orElse(null);
         updatedCliente.setNome(cliente.getNome());
         updatedCliente.setCpf(cliente.getCpf());
         updatedCliente.setEmail(cliente.getEmail());
         updatedCliente.setSenha(cliente.getSenha());
-        return userRepository.save(updatedCliente);
+        return clienteRepository.save(updatedCliente);
     }
 }

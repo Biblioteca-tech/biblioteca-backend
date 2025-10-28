@@ -6,7 +6,7 @@ import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
-import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,17 +15,17 @@ import java.util.Optional;
 @Service
 public class AluguelService {
     private final AluguelRepository aluguelRepository;
-    private final UserRepository userRepository;
+    private final ClienteRepository clienteRepository;
     private final LivroRepository livroRepository;
 
-    public AluguelService(AluguelRepository aluguelRepository, UserRepository userRepository, LivroRepository livroRepository) {
+    public AluguelService(AluguelRepository aluguelRepository, ClienteRepository clienteRepository, LivroRepository livroRepository) {
         this.aluguelRepository = aluguelRepository;
-        this.userRepository = userRepository;
+        this.clienteRepository = clienteRepository;
         this.livroRepository = livroRepository;
     }
 
     public Aluguel alugarLivro(Long clienteId, Long livroId, int dias) {
-        Optional<Cliente> cliente = userRepository.findById(clienteId);
+        Optional<Cliente> cliente = clienteRepository.findById(clienteId);
         if (cliente.isEmpty()) {
             throw new RuntimeException("Cliente não encontrado");
         }

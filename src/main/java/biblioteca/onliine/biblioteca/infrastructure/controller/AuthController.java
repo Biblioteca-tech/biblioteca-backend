@@ -5,7 +5,7 @@ import biblioteca.onliine.biblioteca.domain.dto.LoginDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
 import biblioteca.onliine.biblioteca.domain.port.repository.FuncionarioRepository;
-import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.infrastructure.seguranca.JwtService;
 import biblioteca.onliine.biblioteca.usecase.service.EmailService;
 import org.springframework.http.ResponseEntity;
@@ -29,15 +29,15 @@ import java.util.stream.Collectors;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final UserRepository userRepository;
+    private final ClienteRepository clienteRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final EmailService emailService;
     private final FuncionarioRepository funcionarioRepository;
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService, EmailService emailService, FuncionarioRepository funcionarioRepository) {
-        this.userRepository = userRepository;
+    public AuthController(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService, EmailService emailService, FuncionarioRepository funcionarioRepository) {
+        this.clienteRepository = clienteRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
@@ -49,12 +49,12 @@ public class AuthController {
     // ---------------- Cadastro de cliente ----------------
     @PostMapping("/cadastro")
     public ResponseEntity<?> cadastroUsuario(@RequestBody Cliente cliente) {
-        if (userRepository.existsByEmail(cliente.getEmail())) {
+        if (clienteRepository.existsByEmail(cliente.getEmail())) {
             return ResponseEntity.badRequest().body("Usuário já existe");
         }
         cliente.setSenha(passwordEncoder.encode(cliente.getSenha()));
         cliente.getRoles().add("ROLE_CLIENTE");
-        Cliente clienteSalvo = userRepository.save(cliente);
+        Cliente clienteSalvo = clienteRepository.save(cliente);
         emailService.enviarEmailCadastro(cliente.getEmail(), cliente.getNome());
         return ResponseEntity.ok(clienteSalvo);
     }
@@ -62,7 +62,7 @@ public class AuthController {
     // ---------------- Cadastro de funcionário ----------------
     @PostMapping("/cadastrar-funcionario")
     public ResponseEntity<?> cadastroFuncionario(@RequestBody Funcionario funcionario) {
-        if (userRepository.existsByEmail(funcionario.getEmail())) {
+        if (clienteRepository.existsByEmail(funcionario.getEmail())) {
             return ResponseEntity.badRequest().body("Usuário já existe");
         }
         funcionario.setSenha(passwordEncoder.encode(funcionario.getSenha()));

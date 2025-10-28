@@ -4,7 +4,8 @@ import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
-    Cliente findByNome(String nome);
+    boolean existsByEmail(String email);
     Cliente findByEmail(String email);
+    Cliente findByNome(String nome);
     Cliente findByCpf(String cpf);
 }

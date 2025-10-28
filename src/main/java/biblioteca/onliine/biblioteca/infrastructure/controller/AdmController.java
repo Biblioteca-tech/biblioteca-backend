@@ -1,15 +1,10 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
-import biblioteca.onliine.biblioteca.domain.dto.CadastroFuncionario;
-import biblioteca.onliine.biblioteca.domain.dto.CadastroResponse;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
-import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
 import biblioteca.onliine.biblioteca.domain.port.repository.*;
 import biblioteca.onliine.biblioteca.infrastructure.seguranca.JwtService;
-import biblioteca.onliine.biblioteca.usecase.service.ConfigUser;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.reactive.ReactiveOAuth2ResourceServerAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,15 +18,15 @@ import java.util.Optional;
 @RequestMapping("/adm")
 public class AdmController {
 
-    private final UserRepository userRepository;
+    private final ClienteRepository clienteRepository;
     private final AdmRepository admRepository;
     private final VendaRepository vendaRepository;
     private final LivroRepository livroRepository;
     private final PasswordEncoder passwordEncoder;
     private final FuncionarioRepository funcionarioRepository;
 
-    public AdmController(UserRepository userRepository, AdmRepository admRepository, VendaRepository vendaRepository, LivroRepository livroRepository, PasswordEncoder passwordEncoder, FuncionarioRepository funcionarioRepository, AuthenticationManager authenticationManager, JwtService jwtService) {
-        this.userRepository = userRepository;
+    public AdmController(ClienteRepository clienteRepository, AdmRepository admRepository, VendaRepository vendaRepository, LivroRepository livroRepository, PasswordEncoder passwordEncoder, FuncionarioRepository funcionarioRepository, AuthenticationManager authenticationManager, JwtService jwtService) {
+        this.clienteRepository = clienteRepository;
         this.admRepository = admRepository;
         this.vendaRepository = vendaRepository;
         this.livroRepository = livroRepository;
@@ -42,15 +37,15 @@ public class AdmController {
     // BUSCAR TODOS OS CLIENTES //
     @GetMapping("/cliente")
     public List<Cliente> buscarClientes() {
-        return userRepository.findAll();
+        return clienteRepository.findAll();
     }
 
 
     @DeleteMapping("/delete/{id}")
     public String deletarCliente(@PathVariable Long id) {
-        Optional<Cliente> clienteOptional = userRepository.findById(id);
+        Optional<Cliente> clienteOptional = clienteRepository.findById(id);
         if (clienteOptional.isPresent()) {
-            userRepository.delete(clienteOptional.get());
+            clienteRepository.delete(clienteOptional.get());
             return "{deleted: " + id + "}";
         } else {
             return "{deleted: Resource not found}";

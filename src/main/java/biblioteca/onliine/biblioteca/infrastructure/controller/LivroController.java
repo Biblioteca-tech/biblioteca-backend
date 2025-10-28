@@ -4,7 +4,7 @@ import biblioteca.onliine.biblioteca.domain.Status;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
-import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import biblioteca.onliine.biblioteca.usecase.service.LivroService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,14 +36,14 @@ public class LivroController {
     private final LivroService livroService;
     private final ObjectMapper objectMapper;
     private final VendaRepository vendaRepository;
-    private final UserRepository userRepository;
+    private final ClienteRepository clienteRepository;
 
-    public LivroController(LivroRepository livroRepository, ObjectMapper objectMapper, LivroService livroService, VendaRepository vendaRepository, UserRepository userRepository) {
+    public LivroController(LivroRepository livroRepository, ObjectMapper objectMapper, LivroService livroService, VendaRepository vendaRepository, ClienteRepository clienteRepository) {
         this.livroRepository = livroRepository;
         this.objectMapper = objectMapper;
         this.livroService = livroService;
         this.vendaRepository = vendaRepository;
-        this.userRepository = userRepository;
+        this.clienteRepository = clienteRepository;
     }
 
     @PostMapping(value = "/cadastrar", consumes = {"multipart/form-data"})
@@ -91,7 +91,7 @@ public class LivroController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Cliente usuario = userRepository.findByEmail(userDetails.getUsername());
+        Cliente usuario = clienteRepository.findByEmail(userDetails.getUsername());
         if (usuario == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }

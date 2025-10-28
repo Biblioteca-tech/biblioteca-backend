@@ -5,7 +5,7 @@ import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
-import biblioteca.onliine.biblioteca.domain.port.repository.UserRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import biblioteca.onliine.biblioteca.usecase.service.AluguelService;
 import biblioteca.onliine.biblioteca.usecase.service.ConfigUser;
@@ -23,14 +23,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/cliente")
 public class ClienteController {
     private final ConfigUser configUser;
-    private final UserRepository userRepository;
+    private final ClienteRepository clienteRepository;
     private final EmailService emailService;
     private final VendaRepository vendaRepository;
     private final AluguelService aluguelService;
 
 
-    public ClienteController(UserRepository userRepository, ConfigUser configUser, EmailService emailService, VendaRepository vendaRepository, AluguelService aluguelService) {
-        this.userRepository = userRepository;
+    public ClienteController(ClienteRepository clienteRepository, ConfigUser configUser, EmailService emailService, VendaRepository vendaRepository, AluguelService aluguelService) {
+        this.clienteRepository = clienteRepository;
         this.configUser = configUser;
         this.emailService = emailService;
         this.vendaRepository = vendaRepository;
@@ -43,7 +43,7 @@ public class ClienteController {
         String senhaAtual = body.get("senhaAtual");
         String senhaNova = body.get("senhaNova");
 
-        Cliente cliente = userRepository.findById(id).orElse(null);
+        Cliente cliente = clienteRepository.findById(id).orElse(null);
         if (cliente == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente nao encontrado");
         }
@@ -51,14 +51,14 @@ public class ClienteController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Senha incorreta");
         }
         cliente.atualizarSenha(senhaNova);
-        userRepository.save(cliente);
+        clienteRepository.save(cliente);
         emailService.enviarEmailTrocaSenha(cliente.getEmail(), cliente.getNome());
         return ResponseEntity.ok("Senha aterada com sucesso.");
     }
 
     @GetMapping(value = "/meus-livros")
     public List<LivroDTO> getLivrosComprados(@AuthenticationPrincipal UserDetails userDetails) {
-        Cliente cliente = userRepository.findByEmail(userDetails.getUsername());
+        Cliente cliente = clienteRepository.findByEmail(userDetails.getUsername());
         List<Venda> vendas = vendaRepository.findByClienteId(cliente.getId());
         return vendas.stream().map(venda -> {
             Livro livro = venda.getLivro();
