@@ -113,4 +113,18 @@ public class LivroController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(resource);
     }
+    @GetMapping("/capa/{fileName}")
+    public ResponseEntity<Resource> getCapa(@PathVariable String fileName) throws IOException {
+        File file = new File("/home/iarley/Downloads/biblioteca/uploads/" + fileName);
+
+        if (!file.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        UrlResource resource = new UrlResource(file.toURI());
+        String contentType = Files.probeContentType(file.toPath());
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType != null ? contentType : "application/octet-stream"))
+                .body(resource);
+    }
 }
