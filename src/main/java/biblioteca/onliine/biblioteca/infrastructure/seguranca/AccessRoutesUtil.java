@@ -8,6 +8,7 @@ public class AccessRoutesUtil {
             "/venda/**",
             "/livros/ativos",
             "/cliente/**",
+            "livros/{id}"
     };
     public static final String[] ROTAS_FUNCIONARIO = {
             "/funcionario/**",

@@ -127,4 +127,19 @@ public class LivroController {
                 .contentType(MediaType.parseMediaType(contentType != null ? contentType : "application/octet-stream"))
                 .body(resource);
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<Livro> getLivroById(@PathVariable Long id) {
+        Optional<Livro> livroOpt = livroRepository.findById(id);
+
+        if (livroOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Livro livro = livroOpt.get();
+        // opcional: se quiser mostrar só livros ATIVOS
+        if (livro.getStatusLivro() != Status.ATIVO) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(livro);
+    }
+
 }
