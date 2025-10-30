@@ -7,7 +7,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: Souza@2022
       MYSQL_DATABASE: db_biblioteca
-      MYSQL_USER: biblioteca
+      MYSQL_USER: root
       MYSQL_PASSWORD: Souza@2022
     ports:
       - ':3306'

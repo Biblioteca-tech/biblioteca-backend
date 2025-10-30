@@ -1,6 +1,7 @@
 package biblioteca.onliine.biblioteca.domain.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "funcionario")
+@PrimaryKeyJoinColumn(name = "id")
 public class Funcionario extends Usuario {
     private LocalDate dataAdmissao;
     private String numeroTelefone;

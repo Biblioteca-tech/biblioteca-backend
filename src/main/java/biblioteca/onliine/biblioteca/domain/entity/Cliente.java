@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "cliente")
+@PrimaryKeyJoinColumn(name = "id")
 public class Cliente extends Usuario {
     @Override
     public void atualizarSenha(String senha) {
