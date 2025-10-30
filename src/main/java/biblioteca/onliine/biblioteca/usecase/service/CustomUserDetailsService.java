@@ -1,39 +1,41 @@
 package biblioteca.onliine.biblioteca.usecase.service;
 
+import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Usuario;
-import biblioteca.onliine.biblioteca.domain.port.repository.AuthRepository;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.UsuarioRepository;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Service
-@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
-    private final AuthRepository authRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final ClienteRepository clienteRepository;
+
+    public CustomUserDetailsService(UsuarioRepository usuarioRepository, ClienteRepository clienteRepository) {
+        this.usuarioRepository = usuarioRepository;
+        this.clienteRepository = clienteRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Usuario usuario = authRepository.findByEmail(email);
+        Usuario usuario = usuarioRepository.findByEmail(email);
+
         if (usuario == null) {
-            throw new UsernameNotFoundException(email);
+            throw new UsernameNotFoundException("Usuário não encontrado com email: " + email);
         }
 
-        // Convertendo roles da entidade para GrantedAuthority
-        Set<GrantedAuthority> authorities = usuario.getRoles().stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toSet());
+        if (usuario.getStatusCliente() == Status.INATIVO) {
+            throw new UsernameNotFoundException("Usuário inativo: " + email);
+        }
 
         return new org.springframework.security.core.userdetails.User(
                 usuario.getEmail(),
                 usuario.getSenha(),
-                authorities
+                usuario.getAuthorities()
         );
     }
 }

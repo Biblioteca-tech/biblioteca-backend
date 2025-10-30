@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
     private final CustomUserDetailsService  customUserDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -30,9 +32,16 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
+                        // Rotas livres para todos
                         .requestMatchers(AccessRoutesUtil.ROTAS_LIVRES).permitAll()
-                        .requestMatchers(AccessRoutesUtil.ROTAS_FUNCIONARIO).permitAll()
-                        .requestMatchers(AccessRoutesUtil.ROTAS_ADMIN).permitAll()
+
+                        // Rotas apenas para Funcionários (hasRole() adiciona ROLE_ automaticamente)
+                        .requestMatchers(AccessRoutesUtil.ROTAS_FUNCIONARIO).hasRole("FUNCIONARIO")
+
+                        // Rotas apenas para ADMs (hasRole() adiciona ROLE_ automaticamente)
+                        .requestMatchers(AccessRoutesUtil.ROTAS_ADMIN).hasRole("ADMIN")
+
+                        // Todo o resto precisa estar logado
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -40,6 +49,8 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+
+    // ... (restante dos beans authenticationProvider, passwordEncoder, authenticationManager são os mesmos)
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();

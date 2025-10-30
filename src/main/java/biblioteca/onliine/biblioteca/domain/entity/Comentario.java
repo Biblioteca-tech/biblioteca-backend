@@ -5,8 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.Date;
 
-//@Entity
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,8 +17,24 @@ public class Comentario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 1000)
     private String texto;
 
-    @ManyToOne
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dataCriacao = new Date();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "livro_id", nullable = false)
     private Livro livro;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "autor_id", nullable = false)
+    private Usuario autor;
+
+    public String getNomeAutor() {
+        if (this.autor != null) {
+            return this.autor.getNome();
+        }
+        return "Desconhecido";
+    }
 }
