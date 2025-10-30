@@ -56,7 +56,7 @@ public class LivroController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Valor nao pode ser negativo");
         }
 
-        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload";
+        String uploadDir = "/home/iarley/Downloads/biblioteca/uploads/";
         Files.createDirectories(Paths.get(uploadDir));
 
         String capaFileName = System.currentTimeMillis() + "_" + capa.getOriginalFilename().replaceAll("", "_");
@@ -84,38 +84,35 @@ public class LivroController {
         return livroRepository.findByStatusLivro(Status.ATIVO);
     }
 
+
+
+
     @GetMapping(value = "/pdf/{livroId}")
-    public ResponseEntity<Resource> abrirPdf(@PathVariable Long livroId,
-                                             @AuthenticationPrincipal UserDetails userDetails) throws MalformedURLException {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        Cliente usuario = clienteRepository.findByEmail(userDetails.getUsername());
-        if (usuario == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
+    public ResponseEntity<Resource> abrirPdf(@PathVariable Long livroId) throws MalformedURLException {
         Optional<Livro> livroOpt = livroRepository.findById(livroId);
-        if (livroOpt.isEmpty()) return ResponseEntity.notFound().build();
+        if (livroOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
 
         Livro livro = livroOpt.get();
-        boolean comprou = vendaRepository.existsByClienteIdAndLivroId(usuario.getId(), livro.getId());
-        if (!comprou) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        File file = new File("/home/iarley/Downloads/biblioteca/uploads/" + livro.getPdfPath());
 
-        File file = new File("C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload" + livro.getPdfPath());
-        if (!file.exists()) return ResponseEntity.notFound().build();
-
+        if (!file.exists()) {
+            return ResponseEntity.notFound().build();
+        }
         UrlResource resource = new UrlResource(file.toURI());
-
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + livro.getPdfPath() + "\"")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(resource);
     }
+
+
+
+
     @GetMapping("/capa/{fileName}")
     public ResponseEntity<Resource> getCapa(@PathVariable String fileName) throws IOException {
-        File file = new File("C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload" + fileName);
+        File file = new File("/home/iarley/Downloads/biblioteca/uploads/" + fileName);
 
         if (!file.exists()) {
             return ResponseEntity.notFound().build();
@@ -141,5 +138,6 @@ public class LivroController {
         }
         return ResponseEntity.ok(livro);
     }
+
 
 }
