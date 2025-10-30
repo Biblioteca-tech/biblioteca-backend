@@ -56,6 +56,8 @@ public class ClienteController {
         return ResponseEntity.ok("Senha aterada com sucesso.");
     }
 
+    // O método alterarStatusCliente foi movido para UsuarioController.java
+
     @GetMapping(value = "/meus-livros")
     public List<LivroDTO> getLivrosComprados(@AuthenticationPrincipal UserDetails userDetails) {
         Cliente cliente = clienteRepository.findByEmail(userDetails.getUsername());

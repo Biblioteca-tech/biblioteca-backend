@@ -75,6 +75,76 @@ public class LivroController {
         return ResponseEntity.ok("Livro cadastrado com sucesso!");
     }
 
+    // ENDPOINT 1: ATUALIZAÇÃO COMPLETA DE DADOS TEXTUAIS/NUMÉRICOS (PUT)
+    @PutMapping("/atualizarLivro/{id}")
+    public ResponseEntity<String> atualizarLivro(@PathVariable Long id, @RequestBody Livro livroAtualizado) {
+        Optional<Livro> livroExistenteOpt = livroRepository.findById(id);
+
+        if (livroExistenteOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado para o ID: " + id);
+        }
+
+        Livro livroExistente = livroExistenteOpt.get();
+
+        // Usa o método de domínio (da classe Livro) para atualizar os dados
+        livroExistente.atualizarDadosCompletos(
+                livroAtualizado.getTitulo(),
+                livroAtualizado.getAutor(),
+                livroAtualizado.getEditora(),
+                livroAtualizado.getAno_publicacao(),
+                livroAtualizado.getGenero(),
+                livroAtualizado.getSinopse(),
+                livroAtualizado.getIdioma(),
+                livroAtualizado.getPreco(),
+                livroAtualizado.getStatusLivro()
+        );
+
+        if (livroExistente.getPreco() == null || livroExistente.getPreco() < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Valor nao pode ser negativo");
+        }
+
+        livroRepository.save(livroExistente);
+
+        return ResponseEntity.ok("Livro atualizado com sucesso!");
+    }
+
+    // ENDPOINT 2: ATUALIZAÇÃO APENAS DOS ARQUIVOS DE CAPA E/OU PDF (POST c/ Multipart Form)
+    @PostMapping(value = "/atualizarLivro/capaPdf/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<String> atualizarArquivosLivro(@PathVariable Long id,
+                                                         @RequestPart(value = "capa", required = false) MultipartFile capa,
+                                                         @RequestPart(value = "pdf", required = false) MultipartFile pdf) throws IOException {
+
+        Optional<Livro> livroOpt = livroRepository.findById(id);
+        if (livroOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado.");
+        }
+
+        Livro livroExistente = livroOpt.get();
+        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload/";
+        Files.createDirectories(Paths.get(uploadDir));
+
+        if (capa != null && !capa.isEmpty()) {
+            String safeOriginalFilename = capa.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+            String capaFileName = System.currentTimeMillis() + "_" + safeOriginalFilename;
+            String capaPath = uploadDir + capaFileName;
+            capa.transferTo(new File(capaPath));
+            livroExistente.setCapaPath(capaFileName);
+        }
+
+        if (pdf != null && !pdf.isEmpty()) {
+            String safeOriginalPdfFilename = pdf.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+            String pdfFileName = System.currentTimeMillis() + "_" + safeOriginalPdfFilename;
+            String pdfPath = uploadDir + pdfFileName;
+            pdf.transferTo(new File(pdfPath));
+            livroExistente.setPdfPath(pdfFileName);
+        }
+
+        livroRepository.save(livroExistente);
+
+        return ResponseEntity.ok("Arquivos (capa e/ou pdf) do livro atualizados com sucesso!");
+    }
+
+
     @DeleteMapping(value = "/deletar/{id}")
     public ResponseEntity<String> deletarLivro(@PathVariable("id") Long id) {
         return livroService.delete(id);
@@ -91,24 +161,18 @@ public class LivroController {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
         Cliente usuario = clienteRepository.findByEmail(userDetails.getUsername());
         if (usuario == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-
         Optional<Livro> livroOpt = livroRepository.findById(livroId);
         if (livroOpt.isEmpty()) return ResponseEntity.notFound().build();
-
         Livro livro = livroOpt.get();
         boolean comprou = vendaRepository.existsByClienteIdAndLivroId(usuario.getId(), livro.getId());
         if (!comprou) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-
         File file = new File("C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload/" + livro.getPdfPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
-
         UrlResource resource = new UrlResource(file.toURI());
-
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + livro.getPdfPath() + "\"")
                 .contentType(MediaType.APPLICATION_PDF)
@@ -116,37 +180,21 @@ public class LivroController {
     }
     @GetMapping("/capa/{fileName}")
     public ResponseEntity<Resource> getCapa(@PathVariable String fileName) throws IOException {
-        // 1. Caminho Físico (Confirme a barra no final do diretório)
         String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload/";
         File file = new File(uploadDir + fileName);
 
         if (!file.exists()) {
             return ResponseEntity.notFound().build();
         }
-
         UrlResource resource = new UrlResource(file.toURI());
-
-        // 2. Tenta identificar o Content-Type nativamente
         String contentType = Files.probeContentType(file.toPath());
-
-        // 3. Fallback manual se a identificação nativa falhar (retorna null ou binário genérico)
         if (contentType == null || contentType.equals("application/octet-stream")) {
             String lowerCaseFileName = fileName.toLowerCase();
-
-            // Verifica as extensões mais comuns
-            if (lowerCaseFileName.endsWith(".webp")) {
-                contentType = "image/webp";
-            } else if (lowerCaseFileName.endsWith(".jpg") || lowerCaseFileName.endsWith(".jpeg")) {
-                contentType = "image/jpeg";
-            } else if (lowerCaseFileName.endsWith(".png")) {
-                contentType = "image/png";
-            } else {
-                // Último recurso: binário genérico
-                contentType = "application/octet-stream";
-            }
+            if (lowerCaseFileName.endsWith(".webp")) { contentType = "image/webp"; }
+            else if (lowerCaseFileName.endsWith(".jpg") || lowerCaseFileName.endsWith(".jpeg")) { contentType = "image/jpeg"; }
+            else if (lowerCaseFileName.endsWith(".png")) { contentType = "image/png"; }
+            else { contentType = "application/octet-stream"; }
         }
-
-        // 4. Retorna a resposta com o Content-Type correto
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
@@ -160,7 +208,6 @@ public class LivroController {
             return ResponseEntity.notFound().build();
         }
         Livro livro = livroOpt.get();
-        // opcional: se quiser mostrar só livros ATIVOS
         if (livro.getStatusLivro() != Status.ATIVO) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
