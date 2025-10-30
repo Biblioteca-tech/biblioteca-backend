@@ -56,11 +56,12 @@ public class LivroController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Valor nao pode ser negativo");
         }
 
-        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload";
+        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload/";
         Files.createDirectories(Paths.get(uploadDir));
-
-        String capaFileName = System.currentTimeMillis() + "_" + capa.getOriginalFilename().replaceAll("", "_");
-        String pdfFileName = System.currentTimeMillis() + "_" + pdf.getOriginalFilename().replaceAll("", "_");
+        String safeOriginalFilename = capa.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+        String safeOriginalPdfFilename = pdf.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+        String capaFileName = System.currentTimeMillis() + "_" + safeOriginalFilename;
+        String pdfFileName = System.currentTimeMillis() + "_" + safeOriginalPdfFilename;
 
         String capaPath = uploadDir + capaFileName;
         String pdfPath = uploadDir + pdfFileName;
@@ -103,7 +104,7 @@ public class LivroController {
         boolean comprou = vendaRepository.existsByClienteIdAndLivroId(usuario.getId(), livro.getId());
         if (!comprou) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
-        File file = new File("C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload" + livro.getPdfPath());
+        File file = new File("C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload/" + livro.getPdfPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
 
         UrlResource resource = new UrlResource(file.toURI());
@@ -115,16 +116,40 @@ public class LivroController {
     }
     @GetMapping("/capa/{fileName}")
     public ResponseEntity<Resource> getCapa(@PathVariable String fileName) throws IOException {
-        File file = new File("C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload" + fileName);
+        // 1. Caminho Físico (Confirme a barra no final do diretório)
+        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload/";
+        File file = new File(uploadDir + fileName);
 
         if (!file.exists()) {
             return ResponseEntity.notFound().build();
         }
 
         UrlResource resource = new UrlResource(file.toURI());
+
+        // 2. Tenta identificar o Content-Type nativamente
         String contentType = Files.probeContentType(file.toPath());
+
+        // 3. Fallback manual se a identificação nativa falhar (retorna null ou binário genérico)
+        if (contentType == null || contentType.equals("application/octet-stream")) {
+            String lowerCaseFileName = fileName.toLowerCase();
+
+            // Verifica as extensões mais comuns
+            if (lowerCaseFileName.endsWith(".webp")) {
+                contentType = "image/webp";
+            } else if (lowerCaseFileName.endsWith(".jpg") || lowerCaseFileName.endsWith(".jpeg")) {
+                contentType = "image/jpeg";
+            } else if (lowerCaseFileName.endsWith(".png")) {
+                contentType = "image/png";
+            } else {
+                // Último recurso: binário genérico
+                contentType = "application/octet-stream";
+            }
+        }
+
+        // 4. Retorna a resposta com o Content-Type correto
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType != null ? contentType : "application/octet-stream"))
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
                 .body(resource);
     }
     @GetMapping("/{id}")

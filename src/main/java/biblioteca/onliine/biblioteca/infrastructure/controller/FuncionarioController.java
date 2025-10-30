@@ -69,7 +69,7 @@ public class FuncionarioController {
         if (livroOpt.isEmpty()) return ResponseEntity.notFound().build();
 
         Livro livro = livroOpt.get();
-        File file = new File("C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload" + livro.getPdfPath());
+        File file = new File("C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload/" + livro.getPdfPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
 
         UrlResource resource = new UrlResource(file.toURI());
