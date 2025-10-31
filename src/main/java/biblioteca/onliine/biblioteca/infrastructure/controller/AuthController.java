@@ -2,10 +2,10 @@ package biblioteca.onliine.biblioteca.infrastructure.controller;
 
 
 import biblioteca.onliine.biblioteca.domain.dto.LoginDTO;
+import biblioteca.onliine.biblioteca.domain.entity.Administrador;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
-import biblioteca.onliine.biblioteca.domain.port.repository.FuncionarioRepository;
-import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.*;
 import biblioteca.onliine.biblioteca.infrastructure.seguranca.JwtService;
 import biblioteca.onliine.biblioteca.usecase.service.EmailService;
 import org.springframework.http.ResponseEntity;
@@ -35,14 +35,16 @@ public class AuthController {
     private final JwtService jwtService;
     private final EmailService emailService;
     private final FuncionarioRepository funcionarioRepository;
+    private final AdmmRepository admRepository;
 
-    public AuthController(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService, EmailService emailService, FuncionarioRepository funcionarioRepository) {
+    public AuthController(ClienteRepository clienteRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService, EmailService emailService, FuncionarioRepository funcionarioRepository, AdmmRepository admRepository) {
         this.clienteRepository = clienteRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.emailService = emailService;
         this.funcionarioRepository = funcionarioRepository;
+        this.admRepository = admRepository;
     }
 
 
@@ -70,6 +72,16 @@ public class AuthController {
         Funcionario funcionarioSalvo = funcionarioRepository.save(funcionario);
 
         return ResponseEntity.ok(funcionarioSalvo);
+    }
+
+    // ---------------- cadastro adm ------------------
+    @PostMapping("/cadastro-adm")
+    public ResponseEntity<?> cadastroAdm(@RequestBody Administrador administrador) {
+        administrador.setSenha(passwordEncoder.encode(administrador.getSenha()));
+        administrador.getRoles().add("ROLE_ADMINISTRADOR");
+        Administrador administrador1 = admRepository.save(administrador);
+
+        return  ResponseEntity.ok(administrador1);
     }
 
     // ---------------- Login  ----------------

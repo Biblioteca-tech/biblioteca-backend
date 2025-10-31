@@ -56,7 +56,7 @@ public class LivroController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Valor nao pode ser negativo");
         }
 
-        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload/";
+        String uploadDir = "/home/iarley/Downloads/biblioteca/uploads/";
         Files.createDirectories(Paths.get(uploadDir));
         String safeOriginalFilename = capa.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
         String safeOriginalPdfFilename = pdf.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
@@ -120,7 +120,7 @@ public class LivroController {
         }
 
         Livro livroExistente = livroOpt.get();
-        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload/";
+        String uploadDir = "/home/iarley/Downloads/biblioteca/uploads/";
         Files.createDirectories(Paths.get(uploadDir));
 
         if (capa != null && !capa.isEmpty()) {
@@ -170,7 +170,7 @@ public class LivroController {
         Livro livro = livroOpt.get();
         boolean comprou = vendaRepository.existsByClienteIdAndLivroId(usuario.getId(), livro.getId());
         if (!comprou) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        File file = new File("C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload/" + livro.getPdfPath());
+        File file = new File("/home/iarley/Downloads/biblioteca/uploads/" + livro.getPdfPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
         UrlResource resource = new UrlResource(file.toURI());
         return ResponseEntity.ok()
@@ -180,7 +180,7 @@ public class LivroController {
     }
     @GetMapping("/capa/{fileName}")
     public ResponseEntity<Resource> getCapa(@PathVariable String fileName) throws IOException {
-        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload/";
+        String uploadDir = "/home/iarley/Downloads/biblioteca/uploads/";
         File file = new File(uploadDir + fileName);
 
         if (!file.exists()) {

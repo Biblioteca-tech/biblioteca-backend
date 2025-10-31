@@ -9,6 +9,6 @@ public class ArquivoConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:C:/Users/estee/OneDrive/Documentos/biblioteca-backend/upload/");
+                .addResourceLocations("file:/home/iarley/Downloads/biblioteca/uploads/");
     }
 }

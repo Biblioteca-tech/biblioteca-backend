@@ -6,6 +6,7 @@ public class AccessRoutesUtil {
             "/auth/login",
             "/auth/cadastro",
             "/auth/cadastrar-funcionario",
+            "/auth/cadastro-adm",
             "/venda/**",
             "/livros/ativos",
             "/cliente/**",

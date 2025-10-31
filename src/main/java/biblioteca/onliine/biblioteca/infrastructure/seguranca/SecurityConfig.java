@@ -36,12 +36,11 @@ public class SecurityConfig {
                         .requestMatchers(AccessRoutesUtil.ROTAS_LIVRES).permitAll()
 
                         // Rotas apenas para Funcionários (hasRole() adiciona ROLE_ automaticamente)
-                        .requestMatchers(AccessRoutesUtil.ROTAS_FUNCIONARIO).hasRole("FUNCIONARIO")
+                        .requestMatchers(AccessRoutesUtil.ROTAS_FUNCIONARIO).permitAll()
 
                         // Rotas apenas para ADMs (hasRole() adiciona ROLE_ automaticamente)
-                        .requestMatchers(AccessRoutesUtil.ROTAS_ADMIN).hasRole("ADMIN")
+                        .requestMatchers(AccessRoutesUtil.ROTAS_ADMIN).permitAll()
 
-                        // Todo o resto precisa estar logado
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
