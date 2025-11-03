@@ -156,8 +156,7 @@ public class LivroController {
     }
 
     @GetMapping(value = "/pdf/{livroId}")
-    public ResponseEntity<Resource> abrirPdf(@PathVariable Long livroId,
-                                             @AuthenticationPrincipal UserDetails userDetails) throws MalformedURLException {
+    public ResponseEntity<Resource> abrirPdf(@PathVariable Long livroId, @AuthenticationPrincipal UserDetails userDetails) throws MalformedURLException {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
