@@ -38,7 +38,7 @@ public class VendaController {
         if (clienteOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
         }
-        Cliente cliente = clienteOpt.get(); // ✅ Obtemos o Cliente do Optional
+        Cliente cliente = clienteOpt.get();
 
         // Buscar livro pelo id
         Livro livro = livroRepository.findLivroById(livroId);
