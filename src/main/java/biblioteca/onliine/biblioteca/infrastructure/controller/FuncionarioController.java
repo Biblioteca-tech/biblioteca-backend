@@ -117,7 +117,8 @@ public class FuncionarioController {
         if (livroOpt.isEmpty()) return ResponseEntity.notFound().build();
 
         Livro livro = livroOpt.get();
-        File file = new File("/home/iarley/Downloads/biblioteca/uploads/" + livro.getPdfPath());
+        File file = new File("C:/Users/estee/OneDrive/Documentos/biblioteca-backend/uploads/" + livro.getPdfPath());
+        //File file = new File("/home/iarley/Downloads/biblioteca/uploads/" + livro.getPdfPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
 
         UrlResource resource = new UrlResource(file.toURI());

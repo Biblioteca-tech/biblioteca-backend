@@ -19,9 +19,10 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/venda")
 public class VendaController {
-    ClienteRepository clienteRepository;
-    VendaRepository vendaRepository;
-    LivroRepository livroRepository;
+
+    private final ClienteRepository clienteRepository;
+    private final VendaRepository vendaRepository;
+    private final LivroRepository livroRepository;
 
     public VendaController(ClienteRepository clienteRepository, VendaRepository vendaRepository, LivroRepository livroRepository) {
         this.clienteRepository = clienteRepository;
@@ -31,22 +32,30 @@ public class VendaController {
 
     @PostMapping("/vender")
     public ResponseEntity<?> simularVenda(@RequestParam String email, @RequestParam Long livroId) {
-        Cliente cliente =  clienteRepository.findByEmail(email);
-        if (cliente == null) {
+
+        // Buscar cliente pelo email
+        Optional<Cliente> clienteOpt = clienteRepository.findByEmail(email);
+        if (clienteOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
         }
+        Cliente cliente = clienteOpt.get(); // ✅ Obtemos o Cliente do Optional
+
+        // Buscar livro pelo id
         Livro livro = livroRepository.findLivroById(livroId);
         if (livro == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado");
         }
-        Venda venda = new Venda();
 
+        // Criar venda
+        Venda venda = new Venda();
         venda.setCliente(cliente);
         venda.setLivro(livro);
         venda.setValor(livro.getPreco());
         venda.setDataVenda(LocalDateTime.now());
 
+        // Salvar venda
         Venda vendaSalva = vendaRepository.save(venda);
-        return ResponseEntity.ok().body(vendaSalva);
+
+        return ResponseEntity.ok(vendaSalva);
     }
 }

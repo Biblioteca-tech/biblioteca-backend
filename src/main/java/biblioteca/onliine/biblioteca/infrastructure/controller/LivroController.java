@@ -27,7 +27,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
-
 @RestController
 @RequestMapping("/livros")
 public class LivroController {
@@ -38,7 +37,11 @@ public class LivroController {
     private final VendaRepository vendaRepository;
     private final ClienteRepository clienteRepository;
 
-    public LivroController(LivroRepository livroRepository, ObjectMapper objectMapper, LivroService livroService, VendaRepository vendaRepository, ClienteRepository clienteRepository) {
+    public LivroController(LivroRepository livroRepository,
+                           ObjectMapper objectMapper,
+                           LivroService livroService,
+                           VendaRepository vendaRepository,
+                           ClienteRepository clienteRepository) {
         this.livroRepository = livroRepository;
         this.objectMapper = objectMapper;
         this.livroService = livroService;
@@ -56,26 +59,22 @@ public class LivroController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Valor nao pode ser negativo");
         }
 
-        String uploadDir = "/home/iarley/Downloads/biblioteca/uploads/";
+        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/uploads/";
         Files.createDirectories(Paths.get(uploadDir));
-        String safeOriginalFilename = capa.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
-        String safeOriginalPdfFilename = pdf.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
-        String capaFileName = System.currentTimeMillis() + "_" + safeOriginalFilename;
-        String pdfFileName = System.currentTimeMillis() + "_" + safeOriginalPdfFilename;
 
-        String capaPath = uploadDir + capaFileName;
-        String pdfPath = uploadDir + pdfFileName;
+        String capaFileName = System.currentTimeMillis() + "_" + capa.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+        String pdfFileName = System.currentTimeMillis() + "_" + pdf.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
 
-        capa.transferTo(new File(capaPath));
-        pdf.transferTo(new File(pdfPath));
+        capa.transferTo(new File(uploadDir + capaFileName));
+        pdf.transferTo(new File(uploadDir + pdfFileName));
 
         livro.setCapaPath(capaFileName);
         livro.setPdfPath(pdfFileName);
         livroRepository.save(livro);
+
         return ResponseEntity.ok("Livro cadastrado com sucesso!");
     }
 
-    // ENDPOINT 1: ATUALIZAÇÃO COMPLETA DE DADOS TEXTUAIS/NUMÉRICOS (PUT)
     @PutMapping("/atualizarLivro/{id}")
     public ResponseEntity<String> atualizarLivro(@PathVariable Long id, @RequestBody Livro livroAtualizado) {
         Optional<Livro> livroExistenteOpt = livroRepository.findById(id);
@@ -85,8 +84,6 @@ public class LivroController {
         }
 
         Livro livroExistente = livroExistenteOpt.get();
-
-        // Usa o método de domínio (da classe Livro) para atualizar os dados
         livroExistente.atualizarDadosCompletos(
                 livroAtualizado.getTitulo(),
                 livroAtualizado.getAutor(),
@@ -104,46 +101,37 @@ public class LivroController {
         }
 
         livroRepository.save(livroExistente);
-
         return ResponseEntity.ok("Livro atualizado com sucesso!");
     }
 
-    // ENDPOINT 2: ATUALIZAÇÃO APENAS DOS ARQUIVOS DE CAPA E/OU PDF (POST c/ Multipart Form)
     @PostMapping(value = "/atualizarLivro/capaPdf/{id}", consumes = {"multipart/form-data"})
     public ResponseEntity<String> atualizarArquivosLivro(@PathVariable Long id,
                                                          @RequestPart(value = "capa", required = false) MultipartFile capa,
                                                          @RequestPart(value = "pdf", required = false) MultipartFile pdf) throws IOException {
-
         Optional<Livro> livroOpt = livroRepository.findById(id);
         if (livroOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado.");
         }
 
         Livro livroExistente = livroOpt.get();
-        String uploadDir = "/home/iarley/Downloads/biblioteca/uploads/";
+        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/uploads/";
         Files.createDirectories(Paths.get(uploadDir));
 
         if (capa != null && !capa.isEmpty()) {
-            String safeOriginalFilename = capa.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
-            String capaFileName = System.currentTimeMillis() + "_" + safeOriginalFilename;
-            String capaPath = uploadDir + capaFileName;
-            capa.transferTo(new File(capaPath));
+            String capaFileName = System.currentTimeMillis() + "_" + capa.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+            capa.transferTo(new File(uploadDir + capaFileName));
             livroExistente.setCapaPath(capaFileName);
         }
 
         if (pdf != null && !pdf.isEmpty()) {
-            String safeOriginalPdfFilename = pdf.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
-            String pdfFileName = System.currentTimeMillis() + "_" + safeOriginalPdfFilename;
-            String pdfPath = uploadDir + pdfFileName;
-            pdf.transferTo(new File(pdfPath));
+            String pdfFileName = System.currentTimeMillis() + "_" + pdf.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+            pdf.transferTo(new File(uploadDir + pdfFileName));
             livroExistente.setPdfPath(pdfFileName);
         }
 
         livroRepository.save(livroExistente);
-
         return ResponseEntity.ok("Arquivos (capa e/ou pdf) do livro atualizados com sucesso!");
     }
-
 
     @DeleteMapping(value = "/deletar/{id}")
     public ResponseEntity<String> deletarLivro(@PathVariable("id") Long id) {
@@ -161,57 +149,64 @@ public class LivroController {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        Cliente usuario = clienteRepository.findByEmail(userDetails.getUsername());
-        if (usuario == null) {
+
+        // CORREÇÃO: Desembrulhando Optional corretamente
+        Optional<Cliente> clienteOpt = clienteRepository.findByEmail(userDetails.getUsername());
+        if (clienteOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+        Cliente usuario = clienteOpt.get();
+
         Optional<Livro> livroOpt = livroRepository.findById(livroId);
         if (livroOpt.isEmpty()) return ResponseEntity.notFound().build();
         Livro livro = livroOpt.get();
+
         boolean comprou = vendaRepository.existsByClienteIdAndLivroId(usuario.getId(), livro.getId());
         if (!comprou) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        File file = new File("/home/iarley/Downloads/biblioteca/uploads/" + livro.getPdfPath());
+
+        File file = new File("C:/Users/estee/OneDrive/Documentos/biblioteca-backend/uploads/" + livro.getPdfPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
+
         UrlResource resource = new UrlResource(file.toURI());
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + livro.getPdfPath() + "\"")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(resource);
     }
+
     @GetMapping("/capa/{fileName}")
     public ResponseEntity<Resource> getCapa(@PathVariable String fileName) throws IOException {
-        String uploadDir = "/home/iarley/Downloads/biblioteca/uploads/";
+        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/uploads/";
         File file = new File(uploadDir + fileName);
 
-        if (!file.exists()) {
-            return ResponseEntity.notFound().build();
-        }
+        if (!file.exists()) return ResponseEntity.notFound().build();
+
         UrlResource resource = new UrlResource(file.toURI());
         String contentType = Files.probeContentType(file.toPath());
+
         if (contentType == null || contentType.equals("application/octet-stream")) {
             String lowerCaseFileName = fileName.toLowerCase();
-            if (lowerCaseFileName.endsWith(".webp")) { contentType = "image/webp"; }
-            else if (lowerCaseFileName.endsWith(".jpg") || lowerCaseFileName.endsWith(".jpeg")) { contentType = "image/jpeg"; }
-            else if (lowerCaseFileName.endsWith(".png")) { contentType = "image/png"; }
-            else { contentType = "application/octet-stream"; }
+            if (lowerCaseFileName.endsWith(".webp")) contentType = "image/webp";
+            else if (lowerCaseFileName.endsWith(".jpg") || lowerCaseFileName.endsWith(".jpeg")) contentType = "image/jpeg";
+            else if (lowerCaseFileName.endsWith(".png")) contentType = "image/png";
+            else contentType = "application/octet-stream";
         }
+
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
                 .body(resource);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<Livro> getLivroById(@PathVariable Long id) {
         Optional<Livro> livroOpt = livroRepository.findById(id);
+        if (livroOpt.isEmpty()) return ResponseEntity.notFound().build();
 
-        if (livroOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
         Livro livro = livroOpt.get();
         if (livro.getStatusLivro() != Status.ATIVO) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok(livro);
     }
-
 }

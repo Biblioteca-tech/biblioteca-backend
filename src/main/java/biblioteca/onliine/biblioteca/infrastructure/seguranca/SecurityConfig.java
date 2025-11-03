@@ -35,12 +35,16 @@ public class SecurityConfig {
                         // Rotas livres para todos
                         .requestMatchers(AccessRoutesUtil.ROTAS_LIVRES).permitAll()
 
-                        // Rotas apenas para Funcionários (hasRole() adiciona ROLE_ automaticamente)
-                        .requestMatchers(AccessRoutesUtil.ROTAS_FUNCIONARIO).permitAll()
+                        // Rotas apenas para Funcionários
+                        .requestMatchers(AccessRoutesUtil.ROTAS_FUNCIONARIO).hasRole("FUNCIONARIO")
 
-                        // Rotas apenas para ADMs (hasRole() adiciona ROLE_ automaticamente)
-                        .requestMatchers(AccessRoutesUtil.ROTAS_ADMIN).permitAll()
+                        // Rotas apenas para ADMs
+                        .requestMatchers(AccessRoutesUtil.ROTAS_ADMIN).hasRole("ADMIN")
 
+                        // Permitir que CLIENTE ou FUNCIONARIO devolvam aluguel
+                        .requestMatchers("/alugueis/devolver/**").hasAnyRole("CLIENTE", "FUNCIONARIO")
+
+                        // Qualquer outra requisição precisa estar autenticada
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -49,7 +53,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    // ... (restante dos beans authenticationProvider, passwordEncoder, authenticationManager são os mesmos)
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();

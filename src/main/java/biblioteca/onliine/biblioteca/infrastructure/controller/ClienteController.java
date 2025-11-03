@@ -28,7 +28,6 @@ public class ClienteController {
     private final VendaRepository vendaRepository;
     private final AluguelService aluguelService;
 
-
     public ClienteController(ClienteRepository clienteRepository, ConfigUser configUser, EmailService emailService, VendaRepository vendaRepository, AluguelService aluguelService) {
         this.clienteRepository = clienteRepository;
         this.configUser = configUser;
@@ -37,7 +36,6 @@ public class ClienteController {
         this.aluguelService = aluguelService;
     }
 
-    //Ainda não finalizado
     @PutMapping("/trocar-senha/{id}")
     public ResponseEntity<String> trocarSenha(@PathVariable("id") Long id, @RequestBody Map<String, String> body) {
         String senhaAtual = body.get("senhaAtual");
@@ -45,7 +43,7 @@ public class ClienteController {
 
         Cliente cliente = clienteRepository.findById(id).orElse(null);
         if (cliente == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente nao encontrado");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
         }
         if (!configUser.loginUsuario(cliente, senhaAtual)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Senha incorreta");
@@ -53,19 +51,22 @@ public class ClienteController {
         cliente.atualizarSenha(senhaNova);
         clienteRepository.save(cliente);
         emailService.enviarEmailTrocaSenha(cliente.getEmail(), cliente.getNome());
-        return ResponseEntity.ok("Senha aterada com sucesso.");
+        return ResponseEntity.ok("Senha alterada com sucesso.");
     }
 
-    // O método alterarStatusCliente foi movido para UsuarioController.java
-
     @GetMapping(value = "/meus-livros")
-    public List<LivroDTO> getLivrosComprados(@AuthenticationPrincipal UserDetails userDetails) {
-        Cliente cliente = clienteRepository.findByEmail(userDetails.getUsername());
+    public ResponseEntity<List<LivroDTO>> getLivrosComprados(@AuthenticationPrincipal UserDetails userDetails) {
+        Cliente cliente = clienteRepository.findByEmail(userDetails.getUsername())
+                .orElse(null); // Aqui tratamos o Optional
+        if (cliente == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
         List<Venda> vendas = vendaRepository.findByClienteId(cliente.getId());
-        return vendas.stream().map(venda -> {
+        List<LivroDTO> livros = vendas.stream().map(venda -> {
             Livro livro = venda.getLivro();
             return new LivroDTO(livro, true);
         }).collect(Collectors.toList());
+        return ResponseEntity.ok(livros);
     }
 
     @PostMapping("/alugar")
