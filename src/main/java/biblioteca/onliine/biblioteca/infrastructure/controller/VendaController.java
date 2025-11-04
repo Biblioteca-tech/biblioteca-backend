@@ -46,8 +46,7 @@ public class VendaController {
         venda.setLivro(livro);
         venda.setValor(livro.getPreco());
         venda.setDataVenda(LocalDateTime.now());
-
-        // Salvar venda
+        //venda.setDataVenda(LocalDateTime.of(2025, 10, 10, 10, 0));
         Venda vendaSalva = vendaRepository.save(venda);
 
         return ResponseEntity.ok(vendaSalva);
