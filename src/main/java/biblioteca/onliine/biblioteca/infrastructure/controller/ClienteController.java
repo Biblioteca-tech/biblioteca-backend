@@ -56,8 +56,7 @@ public class ClienteController {
 
     @GetMapping(value = "/meus-livros")
     public ResponseEntity<List<LivroDTO>> getLivrosComprados(@AuthenticationPrincipal UserDetails userDetails) {
-        Cliente cliente = clienteRepository.findByEmail(userDetails.getUsername())
-                .orElse(null); // Aqui tratamos o Optional
+        Cliente cliente = clienteRepository.findByEmail(userDetails.getUsername()).orElse(null);
         if (cliente == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

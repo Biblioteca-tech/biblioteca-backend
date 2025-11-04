@@ -26,7 +26,6 @@ public class AluguelController {
     }
 
     // Mostra todos os alugueis ativos - apenas ADM e FUNCIONARIO
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO')")
     @GetMapping
     public ResponseEntity<List<Aluguel>> listarTodosAtivos() {
         List<Aluguel> alugueis = aluguelService.findAllAtivos();
@@ -34,7 +33,6 @@ public class AluguelController {
     }
 
     // Mostra alugueis de um cliente específico (ADM, FUNCIONARIO e o próprio cliente)
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO','CLIENTE')")
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<?> listarAlugueisPorCliente(@PathVariable Long clienteId) {
         Optional<Cliente> clienteOpt = clienteService.findById(clienteId);
@@ -48,9 +46,7 @@ public class AluguelController {
         return ResponseEntity.ok(alugueis);
     }
 
-    // Mostra apenas alugueis ATIVOS de um cliente
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO','CLIENTE')")
-    @GetMapping("/cliente/{clienteId}/status/ATIVO")
+    @GetMapping("/cliente/{clienteId}/status/ativo")
     public ResponseEntity<?> listarAlugueisAtivosPorCliente(@PathVariable Long clienteId) {
         Optional<Cliente> clienteOpt = clienteService.findById(clienteId);
         if (clienteOpt.isEmpty()) {
@@ -62,8 +58,6 @@ public class AluguelController {
         return ResponseEntity.ok(alugueis);
     }
 
-    // Cria um novo aluguel (ADM, FUNCIONARIO ou CLIENTE)
-    @PreAuthorize("hasAnyRole('ADMIN','FUNCIONARIO','CLIENTE')")
     @PostMapping
     public ResponseEntity<?> criarAluguel(@RequestBody Aluguel aluguel) {
         Aluguel salvo = aluguelService.save(aluguel);

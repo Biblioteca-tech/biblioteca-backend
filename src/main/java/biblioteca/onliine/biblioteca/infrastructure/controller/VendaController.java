@@ -32,21 +32,17 @@ public class VendaController {
 
     @PostMapping("/vender")
     public ResponseEntity<?> simularVenda(@RequestParam String email, @RequestParam Long livroId) {
-
-        // Buscar cliente pelo email
         Optional<Cliente> clienteOpt = clienteRepository.findByEmail(email);
         if (clienteOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
         }
         Cliente cliente = clienteOpt.get();
 
-        // Buscar livro pelo id
         Livro livro = livroRepository.findLivroById(livroId);
         if (livro == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado");
         }
 
-        // Criar venda
         Venda venda = new Venda();
         venda.setCliente(cliente);
         venda.setLivro(livro);

@@ -8,6 +8,8 @@ import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import biblioteca.onliine.biblioteca.usecase.service.LivroService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -30,6 +32,9 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/livros")
 public class LivroController {
+
+    @Value("spring.diretorio.iarley")
+    private String diretorio;
 
     private final LivroRepository livroRepository;
     private final LivroService livroService;
@@ -59,7 +64,7 @@ public class LivroController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Valor nao pode ser negativo");
         }
 
-        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/uploads/";
+        String uploadDir = this.diretorio;
         Files.createDirectories(Paths.get(uploadDir));
 
         String capaFileName = System.currentTimeMillis() + "_" + capa.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
@@ -114,7 +119,7 @@ public class LivroController {
         }
 
         Livro livroExistente = livroOpt.get();
-        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/uploads/";
+        String uploadDir = this.diretorio;
         Files.createDirectories(Paths.get(uploadDir));
 
         if (capa != null && !capa.isEmpty()) {
@@ -164,7 +169,7 @@ public class LivroController {
         boolean comprou = vendaRepository.existsByClienteIdAndLivroId(usuario.getId(), livro.getId());
         if (!comprou) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
-        File file = new File("C:/Users/estee/OneDrive/Documentos/biblioteca-backend/uploads/" + livro.getPdfPath());
+        File file = new File(this.diretorio + livro.getPdfPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
 
         UrlResource resource = new UrlResource(file.toURI());
@@ -176,7 +181,7 @@ public class LivroController {
 
     @GetMapping("/capa/{fileName}")
     public ResponseEntity<Resource> getCapa(@PathVariable String fileName) throws IOException {
-        String uploadDir = "C:/Users/estee/OneDrive/Documentos/biblioteca-backend/uploads/";
+        String uploadDir = this.diretorio;
         File file = new File(uploadDir + fileName);
 
         if (!file.exists()) return ResponseEntity.notFound().build();

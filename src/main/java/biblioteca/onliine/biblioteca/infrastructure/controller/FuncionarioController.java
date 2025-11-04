@@ -4,6 +4,7 @@ import biblioteca.onliine.biblioteca.domain.dto.FuncionarioInputDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +32,9 @@ import java.util.List;
 @RequestMapping("/funcionario")
 public class FuncionarioController {
 
+    @Value("spring.diretorio.iarley")
+    private String diretorio;
+
     private final LivroService livroService;
     private final ClienteRepository clienteRepository;
     private final AluguelRepository aluguelRepository;
@@ -50,8 +54,7 @@ public class FuncionarioController {
         this.funcionarioService = funcionarioService; // Inicialize o service
     }
 
-    // Endpoint de Atualização (adicionado anteriormente)
-    @PreAuthorize("hasAnyRole('ADMIN', 'FUNCIONARIO')")
+
     @PutMapping("/atualizarDados/{id}")
     public ResponseEntity<String> atualizarDadosFuncionario(@PathVariable Long id, @RequestBody FuncionarioInputDTO dadosAtualizados) {
         Optional<Funcionario> funcionarioOpt = funcionarioRepository.findById(id);
@@ -72,8 +75,6 @@ public class FuncionarioController {
         return ResponseEntity.ok("Dados do funcionário atualizados com sucesso!");
     }
 
-    // NOVO ENDPOINT: Deletar funcionário (Apenas ADM pode fazer isso)
-    @PreAuthorize("hasRole('ADMIN')") // Apenas usuários com a role 'ADMIN' podem deletar
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<String> deletarFuncionario(@PathVariable Long id) {
         try {
@@ -94,7 +95,7 @@ public class FuncionarioController {
         livro.setId(id);
         return ResponseEntity.ok(livroService.update(livro));
     }
-    // ... (outros métodos listarAlugueis, listarLivros, visualizarPdf são os mesmos)
+
     @GetMapping("/alugueis/{clienteId}")
     public ResponseEntity<?> listarAlugueis(@PathVariable Long clienteId) {
         Optional<Cliente> cliente = clienteRepository.findById(clienteId);
@@ -117,8 +118,7 @@ public class FuncionarioController {
         if (livroOpt.isEmpty()) return ResponseEntity.notFound().build();
 
         Livro livro = livroOpt.get();
-        File file = new File("C:/Users/estee/OneDrive/Documentos/biblioteca-backend/uploads/" + livro.getPdfPath());
-        //File file = new File("/home/iarley/Downloads/biblioteca/uploads/" + livro.getPdfPath());
+        File file = new File(diretorio + livro.getPdfPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
 
         UrlResource resource = new UrlResource(file.toURI());

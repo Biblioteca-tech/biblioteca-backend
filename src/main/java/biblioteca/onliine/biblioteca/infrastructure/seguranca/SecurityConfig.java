@@ -36,13 +36,10 @@ public class SecurityConfig {
                         .requestMatchers(AccessRoutesUtil.ROTAS_LIVRES).permitAll()
 
                         // Rotas apenas para Funcionários
-                        .requestMatchers(AccessRoutesUtil.ROTAS_FUNCIONARIO).hasRole("FUNCIONARIO")
+                        .requestMatchers(AccessRoutesUtil.ROTAS_FUNCIONARIO).permitAll()
 
                         // Rotas apenas para ADMs
-                        .requestMatchers(AccessRoutesUtil.ROTAS_ADMIN).hasRole("ADMIN")
-
-                        // Permitir que CLIENTE ou FUNCIONARIO devolvam aluguel
-                        .requestMatchers("/alugueis/devolver/**").hasAnyRole("CLIENTE", "FUNCIONARIO")
+                        .requestMatchers(AccessRoutesUtil.ROTAS_ADMIN).permitAll()
 
                         // Qualquer outra requisição precisa estar autenticada
                         .anyRequest().authenticated()

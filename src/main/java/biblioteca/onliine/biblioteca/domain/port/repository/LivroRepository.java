@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LivroRepository extends JpaRepository<Livro, Long> {
-    Optional<Livro> findByTituloAndAutorAndEditora(String titulo, String autor, String editora);
     Livro findLivroById(Long livroId);
     List<Livro> findByStatusLivro(Status statusLivro);
 }
