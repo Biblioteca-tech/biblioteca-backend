@@ -33,7 +33,7 @@ import java.util.Optional;
 @RequestMapping("/livros")
 public class LivroController {
 
-    @Value("spring.diretorio.iarley")
+    @Value("${spring.diretorio.iarley}")
     private String diretorio;
 
     private final LivroRepository livroRepository;
@@ -155,7 +155,6 @@ public class LivroController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        // CORREÇÃO: Desembrulhando Optional corretamente
         Optional<Cliente> clienteOpt = clienteRepository.findByEmail(userDetails.getUsername());
         if (clienteOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

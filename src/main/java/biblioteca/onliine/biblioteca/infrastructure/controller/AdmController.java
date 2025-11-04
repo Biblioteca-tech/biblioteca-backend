@@ -22,16 +22,12 @@ public class AdmController {
     private final AdmRepository admRepository;
     private final VendaRepository vendaRepository;
     private final LivroRepository livroRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final FuncionarioRepository funcionarioRepository;
 
-    public AdmController(ClienteRepository clienteRepository, AdmRepository admRepository, VendaRepository vendaRepository, LivroRepository livroRepository, PasswordEncoder passwordEncoder, FuncionarioRepository funcionarioRepository, AuthenticationManager authenticationManager, JwtService jwtService) {
+    public AdmController(ClienteRepository clienteRepository, AdmRepository admRepository, VendaRepository vendaRepository, LivroRepository livroRepository) {
         this.clienteRepository = clienteRepository;
         this.admRepository = admRepository;
         this.vendaRepository = vendaRepository;
         this.livroRepository = livroRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.funcionarioRepository = funcionarioRepository;
     }
 
     // BUSCAR TODOS OS CLIENTES //
