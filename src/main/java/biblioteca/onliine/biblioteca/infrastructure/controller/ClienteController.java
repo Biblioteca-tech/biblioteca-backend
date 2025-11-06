@@ -14,7 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,13 +30,15 @@ public class ClienteController {
     private final EmailService emailService;
     private final VendaRepository vendaRepository;
     private final AluguelService aluguelService;
+    private final PasswordEncoder passwordEncoder;
 
-    public ClienteController(ClienteRepository clienteRepository, ConfigUser configUser, EmailService emailService, VendaRepository vendaRepository, AluguelService aluguelService) {
+    public ClienteController(ClienteRepository clienteRepository, ConfigUser configUser, EmailService emailService, VendaRepository vendaRepository, AluguelService aluguelService,  PasswordEncoder passwordEncoder) {
         this.clienteRepository = clienteRepository;
         this.configUser = configUser;
         this.emailService = emailService;
         this.vendaRepository = vendaRepository;
         this.aluguelService = aluguelService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PutMapping("/trocar-senha/{id}")
@@ -87,4 +92,52 @@ public class ClienteController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @PutMapping("/atualizar")
+    public ResponseEntity<?> atualizarPerfil(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody Map<String, Object> body) {
+
+        Cliente cliente = clienteRepository.findByEmail(userDetails.getUsername()).orElse(null);
+        if (cliente == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
+        }
+
+        // Atualiza os campos apenas se vierem no corpo da requisição
+        if (body.containsKey("nome")) {
+            cliente.setNome((String) body.get("nome"));
+        }
+        if (body.containsKey("email")) {
+            cliente.setEmail((String) body.get("email"));
+        }
+        if (body.containsKey("cpf")) {
+            cliente.setCpf((String) body.get("cpf"));
+        }
+        if (body.containsKey("data_nascimento")) {
+            try {
+                String dataStr = (String) body.get("data_nascimento");
+                Date data = java.sql.Date.valueOf(dataStr);
+                cliente.setData_nascimento(data);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("Formato de data inválido. Use yyyy-MM-dd.");
+            }
+        }
+        if (body.containsKey("senha")) {
+            String novaSenha = (String) body.get("senha");
+            if (novaSenha != null && !novaSenha.isBlank()) {
+                cliente.atualizarSenha(passwordEncoder.encode(novaSenha));
+            }
+        }
+        clienteRepository.save(cliente);
+        return ResponseEntity.ok("Perfil atualizado com sucesso!");
+    }
+    @GetMapping("/perfil")
+    public ResponseEntity<?> getPerfil(@AuthenticationPrincipal UserDetails userDetails) {
+        Cliente cliente = clienteRepository.findByEmail(userDetails.getUsername()).orElse(null);
+        if (cliente == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
+        }
+        return ResponseEntity.ok(cliente);
+    }
+
+
 }
