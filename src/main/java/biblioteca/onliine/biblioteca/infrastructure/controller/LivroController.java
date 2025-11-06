@@ -149,24 +149,10 @@ public class LivroController {
     }
 
     @GetMapping(value = "/pdf/{livroId}")
-    public ResponseEntity<Resource> abrirPdf(@PathVariable Long livroId,
-                                             @AuthenticationPrincipal UserDetails userDetails) throws MalformedURLException {
-        if (userDetails == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-
-        Optional<Cliente> clienteOpt = clienteRepository.findByEmail(userDetails.getUsername());
-        if (clienteOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        Cliente usuario = clienteOpt.get();
-
+    public ResponseEntity<Resource> abrirPdf(@PathVariable Long livroId) throws MalformedURLException {
         Optional<Livro> livroOpt = livroRepository.findById(livroId);
         if (livroOpt.isEmpty()) return ResponseEntity.notFound().build();
         Livro livro = livroOpt.get();
-
-        boolean comprou = vendaRepository.existsByClienteIdAndLivroId(usuario.getId(), livro.getId());
-        if (!comprou) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         File file = new File(this.diretorio + livro.getPdfPath());
         if (!file.exists()) return ResponseEntity.notFound().build();
@@ -177,6 +163,7 @@ public class LivroController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(resource);
     }
+
 
     @GetMapping("/capa/{fileName}")
     public ResponseEntity<Resource> getCapa(@PathVariable String fileName) throws IOException {
