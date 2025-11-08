@@ -1,7 +1,9 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
+import biblioteca.onliine.biblioteca.domain.Status;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
+import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
 import biblioteca.onliine.biblioteca.domain.port.repository.*;
 import biblioteca.onliine.biblioteca.infrastructure.seguranca.JwtService;
@@ -37,7 +39,7 @@ public class AdmController {
     }
 
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/cliente/deletar/{id}")
     public String deletarCliente(@PathVariable Long id) {
         Optional<Cliente> clienteOptional = clienteRepository.findById(id);
         if (clienteOptional.isPresent()) {
@@ -52,6 +54,17 @@ public class AdmController {
     @GetMapping("/buscar-funcionario")
     public List<Funcionario> buscarFuncionarios() {
         return admRepository.findAll();
+    }
+
+    // DELETAR FUNCIONARIO
+    @DeleteMapping("/deletar/{id}")
+    public String deletarFuncionario(@PathVariable Long id) {
+        Optional<Funcionario> funcionarioOptional = admRepository.findById(id);
+        if (funcionarioOptional.isPresent()) {
+            admRepository.delete(funcionarioOptional.get());
+            return "{deleted: " + id + "}";
+        }
+        return "{deleted: Resource not found}";
     }
 
     // EXIBIR HISTORICO DE LIVROS VENDIDOS //

@@ -1,10 +1,12 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
+import biblioteca.onliine.biblioteca.domain.StatusAluguel;
 import biblioteca.onliine.biblioteca.domain.dto.LivroDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
+import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import biblioteca.onliine.biblioteca.usecase.service.AluguelService;
@@ -17,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,14 +34,16 @@ public class ClienteController {
     private final VendaRepository vendaRepository;
     private final AluguelService aluguelService;
     private final PasswordEncoder passwordEncoder;
+    private final AluguelRepository aluguelRepository;
 
-    public ClienteController(ClienteRepository clienteRepository, ConfigUser configUser, EmailService emailService, VendaRepository vendaRepository, AluguelService aluguelService,  PasswordEncoder passwordEncoder) {
+    public ClienteController(AluguelRepository aluguelRepository,ClienteRepository clienteRepository, ConfigUser configUser, EmailService emailService, VendaRepository vendaRepository, AluguelService aluguelService,  PasswordEncoder passwordEncoder) {
         this.clienteRepository = clienteRepository;
         this.configUser = configUser;
         this.emailService = emailService;
         this.vendaRepository = vendaRepository;
         this.aluguelService = aluguelService;
         this.passwordEncoder = passwordEncoder;
+        this.aluguelRepository = aluguelRepository;
     }
 
     @PutMapping("/trocar-senha/{id}")
@@ -60,33 +65,34 @@ public class ClienteController {
     }
 
     @GetMapping(value = "/meus-livros")
-    public ResponseEntity<List<LivroDTO>> getLivrosComprados(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<LivroDTO>> getLivrosDoCliente(@AuthenticationPrincipal UserDetails userDetails) {
         Cliente cliente = clienteRepository.findByEmail(userDetails.getUsername()).orElse(null);
         if (cliente == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         List<Venda> vendas = vendaRepository.findByClienteId(cliente.getId());
-        List<LivroDTO> livros = vendas.stream().map(venda -> {
-            Livro livro = venda.getLivro();
-            return new LivroDTO(livro, true);
-        }).collect(Collectors.toList());
-        return ResponseEntity.ok(livros);
+        List<LivroDTO> livrosComprados = vendas.stream()
+                .map(venda -> new LivroDTO(venda.getLivro(), true))
+                .toList();
+
+        List<Aluguel> alugueis = aluguelRepository.findByClienteAndStatus(cliente, StatusAluguel.ATIVO);
+
+        List<LivroDTO> livrosAlugados = alugueis.stream()
+                .map(aluguel -> new LivroDTO(aluguel.getLivro(), false)) // false = não é comprado
+                .collect(Collectors.toList());
+
+        List<LivroDTO> todosLivros = new ArrayList<>();
+        todosLivros.addAll(livrosComprados);
+        todosLivros.addAll(livrosAlugados);
+
+        return ResponseEntity.ok(todosLivros);
     }
+
 
     @PostMapping("/alugar")
     public ResponseEntity<?> alugarLivro(@RequestParam Long clienteId, @RequestParam Long livroId, @RequestParam(defaultValue = "7") int dias) {
         try {
             Aluguel aluguel = aluguelService.alugarLivro(clienteId, livroId, dias);
-            return ResponseEntity.ok(aluguel);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @PostMapping("/devolver")
-    public ResponseEntity<?> devolverLivro(@RequestParam Long aluguelId) {
-        try {
-            Aluguel aluguel = aluguelService.devolverLivro(aluguelId);
             return ResponseEntity.ok(aluguel);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

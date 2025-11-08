@@ -17,7 +17,11 @@ public class AccessRoutesUtil {
             "/livros/capa/{fileName}",
             "/comentarios/adicionarComentario/**",
             "/comentarios/livro/**",
-            "/usuarios/**"
+            "/usuarios/**",
+            "/livros/toggle-status/{id}",
+            "/alugueis",
+            "/alugueis/historico-aluguel",
+            "/alugueis/deletar-historico/{id}"
     };
     public static final String[] ROTAS_FUNCIONARIO = {
             "/funcionario/**",

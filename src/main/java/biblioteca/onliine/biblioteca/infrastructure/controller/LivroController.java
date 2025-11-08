@@ -1,14 +1,14 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
 import biblioteca.onliine.biblioteca.domain.Status;
-import biblioteca.onliine.biblioteca.domain.entity.Cliente;
+
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import biblioteca.onliine.biblioteca.usecase.service.LivroService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -16,8 +16,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +27,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/livros")
 public class LivroController {
@@ -195,9 +194,23 @@ public class LivroController {
         if (livroOpt.isEmpty()) return ResponseEntity.notFound().build();
 
         Livro livro = livroOpt.get();
-        if (livro.getStatusLivro() != Status.ATIVO) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.ok(livro);
+    }
+
+    // STATUS LIVRO
+    @PatchMapping("/toggle-status/{id}")
+    public ResponseEntity<?> toggleStatus(@PathVariable Long id) {
+        Optional<Livro> optionalLivro = livroRepository.findById(id);
+        if (optionalLivro.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
+        Livro livro = optionalLivro.get();
+        if (Status.ATIVO.equals(livro.getStatusLivro())) {
+            livro.setStatusLivro(Status.INATIVO);
+        } else {
+            livro.setStatusLivro(Status.ATIVO);
+        }
+        livroRepository.save(livro);
         return ResponseEntity.ok(livro);
     }
 }

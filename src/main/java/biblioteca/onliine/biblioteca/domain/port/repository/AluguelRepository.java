@@ -12,4 +12,6 @@ import java.util.List;
 public interface AluguelRepository extends JpaRepository<Aluguel, Long> {
     List<Aluguel> findByCliente(Cliente cliente);
     List<Aluguel> findByStatus(StatusAluguel statusAluguel);
+    List<Aluguel> findByClienteAndStatus(Cliente cliente, StatusAluguel statusAluguel);
+    List<Aluguel> findByClienteIdAndStatus(Long cliente_id, StatusAluguel status);
 }

@@ -21,21 +21,21 @@ public class Aluguel {
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "cliente_id", nullable = false)
+    @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "livro_id", nullable = false)
+    @JoinColumn(name = "livro_id")
     private Livro livro;
 
     @CreationTimestamp
-    @Column(name = "data_aluguel", nullable = false, updatable = false)
+    @Column(name = "data_aluguel")
     private LocalDateTime dataAluguel;
 
     @Column(name = "data_devolucao")
     private LocalDateTime dataDevolucao;
 
-    @Column(name = "valor_aluguel", nullable = false)
+    @Column(name = "valor_aluguel")
     private Double valorAluguel;
 
     @Enumerated(EnumType.STRING)

@@ -32,16 +32,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        // Rotas livres para todos
                         .requestMatchers(AccessRoutesUtil.ROTAS_LIVRES).permitAll()
-
-                        // Rotas apenas para Funcionários
                         .requestMatchers(AccessRoutesUtil.ROTAS_FUNCIONARIO).permitAll()
-
-                        // Rotas apenas para ADMs
                         .requestMatchers(AccessRoutesUtil.ROTAS_ADMIN).permitAll()
-
-                        // Qualquer outra requisição precisa estar autenticada
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

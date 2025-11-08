@@ -3,13 +3,18 @@ package biblioteca.onliine.biblioteca.infrastructure.controller;
 import biblioteca.onliine.biblioteca.domain.StatusAluguel;
 import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
+import biblioteca.onliine.biblioteca.domain.entity.Livro;
+import biblioteca.onliine.biblioteca.domain.entity.Venda;
+import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
 import biblioteca.onliine.biblioteca.usecase.service.AluguelService;
 import biblioteca.onliine.biblioteca.usecase.service.ClienteService;
+import biblioteca.onliine.biblioteca.usecase.service.LivroService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,10 +24,14 @@ public class AluguelController {
 
     private final AluguelService aluguelService;
     private final ClienteService clienteService;
+    private final LivroService livroService;
+    private final AluguelRepository aluguelRepository;
 
-    public AluguelController(AluguelService aluguelService, ClienteService clienteService) {
+    public AluguelController(AluguelService aluguelService, ClienteService clienteService,  LivroService livroService, AluguelRepository aluguelRepository) {
         this.aluguelService = aluguelService;
         this.clienteService = clienteService;
+        this.livroService = livroService;
+        this.aluguelRepository = aluguelRepository;
     }
 
     // Mostra todos os alugueis ativos - apenas ADM e FUNCIONARIO
@@ -40,27 +49,50 @@ public class AluguelController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
         }
 
-        // 👇 Aqui corrigido: pegamos o Cliente antes de chamar o serviço
         Cliente cliente = clienteOpt.get();
         List<Aluguel> alugueis = aluguelService.findByCliente(cliente);
         return ResponseEntity.ok(alugueis);
     }
 
-    @GetMapping("/cliente/{clienteId}/status/ativo")
-    public ResponseEntity<?> listarAlugueisAtivosPorCliente(@PathVariable Long clienteId) {
-        Optional<Cliente> clienteOpt = clienteService.findById(clienteId);
-        if (clienteOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
-        }
-
-        Cliente cliente = clienteOpt.get();
-        List<Aluguel> alugueis = aluguelService.findByClienteAndStatus(cliente, StatusAluguel.ATIVO);
-        return ResponseEntity.ok(alugueis);
-    }
 
     @PostMapping
     public ResponseEntity<?> criarAluguel(@RequestBody Aluguel aluguel) {
         Aluguel salvo = aluguelService.save(aluguel);
         return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+    }
+
+    @PostMapping("/alugar")
+    public ResponseEntity<?> alugarLivro(
+            @RequestParam String email,
+            @RequestParam Long livroId,
+            @RequestParam(defaultValue = "7") int dias
+    ) {
+        Optional<Cliente> clienteOpt = clienteService.findByEmail(email);
+        if (clienteOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
+        }
+        Cliente cliente = clienteOpt.get();
+
+        try {
+            Aluguel aluguel = aluguelService.alugarLivro(cliente.getId(), livroId, dias);
+            return ResponseEntity.status(HttpStatus.CREATED).body(aluguel);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/deletar-historico/{id}")
+    public void deletarAluguel(@PathVariable("id") Long aluguelId) {
+        if (!aluguelRepository.existsById(aluguelId)) {
+            throw new RuntimeException("Aluguel não encontrado para exclusão");
+        }
+        aluguelRepository.deleteById(aluguelId);
+    }
+
+    // Endpoint para listar o histórico de aluguéis (todos)
+    @GetMapping("/historico-aluguel")
+    public ResponseEntity<List<Aluguel>> listarHistoricoAluguel() {
+        List<Aluguel> historico = aluguelService.listarHistorico();
+        return ResponseEntity.ok(historico);
     }
 }

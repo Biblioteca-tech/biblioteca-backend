@@ -7,6 +7,8 @@ import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,39 +30,26 @@ public class AluguelService {
         this.livroRepository = livroRepository;
     }
 
-    // Cria um novo aluguel
     public Aluguel alugarLivro(Long clienteId, Long livroId, int dias) {
         Optional<Cliente> clienteOpt = clienteRepository.findById(clienteId);
         if (clienteOpt.isEmpty()) {
             throw new RuntimeException("Cliente não encontrado");
         }
-
         Livro livro = livroRepository.findLivroById(livroId);
         if (livro == null) {
             throw new RuntimeException("Livro não encontrado");
         }
-
-        double valorAluguel = livro.getPreco() * 0.2 * dias; // 20% do preço por dia
+        double valorAluguel = livro.getPreco();
 
         Aluguel aluguel = Aluguel.builder()
                 .cliente(clienteOpt.get())
                 .livro(livro)
                 .dataAluguel(LocalDateTime.now())
-                .dataDevolucao(LocalDateTime.now().plusDays(dias))
+//                .dataDevolucao(LocalDateTime.now().plusDays(10))
+                .dataDevolucao(LocalDateTime.now().plusSeconds(5))
                 .valorAluguel(valorAluguel)
                 .status(StatusAluguel.ATIVO)
                 .build();
-
-        return aluguelRepository.save(aluguel);
-    }
-
-    // Marca um aluguel como devolvido
-    public Aluguel devolverLivro(Long aluguelId) {
-        Aluguel aluguel = aluguelRepository.findById(aluguelId)
-                .orElseThrow(() -> new RuntimeException("Aluguel não encontrado"));
-
-        aluguel.setStatus(StatusAluguel.DEVOLVIDO);
-        aluguel.setDataDevolucao(LocalDateTime.now());
 
         return aluguelRepository.save(aluguel);
     }
@@ -75,19 +64,34 @@ public class AluguelService {
         return aluguelRepository.findByCliente(cliente);
     }
 
-    // Busca alugueis de um cliente com um status específico
-    public List<Aluguel> findByClienteAndStatus(Cliente cliente, StatusAluguel status) {
-        return aluguelRepository.findByCliente(cliente).stream()
-                .filter(a -> a.getStatus() == status)
-                .toList();
-    }
 
     // Salva ou atualiza um aluguel
     public Aluguel save(Aluguel aluguel) {
-        // Garante que o status nunca será null
         if (aluguel.getStatus() == null) {
             aluguel.setStatus(StatusAluguel.ATIVO);
         }
         return aluguelRepository.save(aluguel);
+    }
+    public List<Aluguel> listarTodosAlugueis() {
+        return aluguelRepository.findByStatus(StatusAluguel.ATRASADO);
+    }
+
+    public List<Aluguel> listarHistorico() {
+        return aluguelRepository.findAll();
+    }
+
+    @Scheduled(fixedRate = 5000)
+    public void verificarAlugueisVencidos() {
+        List<Aluguel> alugueis = aluguelRepository.findAll();
+        LocalDateTime agora = LocalDateTime.now();
+
+        for (Aluguel aluguel : alugueis) {
+            if (aluguel.getStatus() == StatusAluguel.ATIVO &&
+                    aluguel.getDataDevolucao().isBefore(agora)) {
+
+                aluguel.setStatus(StatusAluguel.FINALIZADO);
+                aluguelRepository.save(aluguel);
+            }
+        }
     }
 }
