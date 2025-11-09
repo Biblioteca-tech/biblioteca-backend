@@ -5,32 +5,34 @@ public class AccessRoutesUtil {
             // ... (suas rotas livres existentes) ...
             "/auth/login",
             "/auth/cadastro",
-            "/auth/cadastrar-funcionario",
             "/auth/cadastro-adm",
             "/venda/**",
             "/livros/ativos",
             "/cliente/**",
             "/livros/{id}",
+            "/alugueis/alugar",
             "/livros/pdf/{livroId}",
-            "/livros/atualizarLivro/{id}",
-            "/livros/atualizarLivro/capaPdf/{id}",
             "/livros/capa/{fileName}",
-            "/comentarios/adicionarComentario/**",
-            "/comentarios/livro/**",
             "/usuarios/**",
-            "/livros/toggle-status/{id}",
-            "/alugueis",
-            "/alugueis/historico-aluguel",
-            "/alugueis/deletar-historico/{id}"
     };
     public static final String[] ROTAS_FUNCIONARIO = {
             "/funcionario/**",
             "/venda/**",
             "/livros/cadastrar",
-            "/livros/deletar/{id}"
+            "/livros/deletar/{id}",
+            "/funcionario/livros",
     };
 
     public static final String[] ROTAS_ADMIN = {
-            "/adm/**"
+            "/adm/**",
+            "/auth/cadastrar-funcionario",
+            "/alugueis/historico-aluguel",
+            "/alugueis/deletar-historico/{id}",
+            "/livros/toggle-status/{id}",
+            "/livros/atualizarLivro/{id}",
+            "/livros/atualizarLivro/capaPdf/{id}",
+            "/livros/ativos",
+            "/livros",
+            "/funcionario/livros",
     };
 }

@@ -38,19 +38,13 @@ public class LivroController {
     private final LivroRepository livroRepository;
     private final LivroService livroService;
     private final ObjectMapper objectMapper;
-    private final VendaRepository vendaRepository;
-    private final ClienteRepository clienteRepository;
 
     public LivroController(LivroRepository livroRepository,
                            ObjectMapper objectMapper,
-                           LivroService livroService,
-                           VendaRepository vendaRepository,
-                           ClienteRepository clienteRepository) {
+                           LivroService livroService) {
         this.livroRepository = livroRepository;
         this.objectMapper = objectMapper;
         this.livroService = livroService;
-        this.vendaRepository = vendaRepository;
-        this.clienteRepository = clienteRepository;
     }
 
     @PostMapping(value = "/cadastrar", consumes = {"multipart/form-data"})
@@ -212,5 +206,11 @@ public class LivroController {
         }
         livroRepository.save(livro);
         return ResponseEntity.ok(livro);
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<Livro>> listarLivros() {
+        List<Livro> livros = livroService.findAll();
+        return ResponseEntity.ok(livros);
     }
 }

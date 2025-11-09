@@ -106,12 +106,6 @@ public class FuncionarioController {
         return ResponseEntity.ok(alugueis);
     }
 
-    @GetMapping("/livros")
-    public ResponseEntity<List<Livro>> listarLivros() {
-        List<Livro> livros = livroService.findAll();
-        return ResponseEntity.ok(livros);
-    }
-
     @GetMapping("/livros/pdf/{livroId}")
     public ResponseEntity<Resource> visualizarPdf(@PathVariable Long livroId) throws MalformedURLException {
         Optional<Livro> livroOpt = livroRepository.findById(livroId);
