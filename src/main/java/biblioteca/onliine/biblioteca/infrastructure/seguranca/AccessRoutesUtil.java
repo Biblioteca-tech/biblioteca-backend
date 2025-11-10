@@ -26,7 +26,6 @@ public class AccessRoutesUtil {
             "/livros/atualizarLivro/{id}",
             "/livros/atualizarLivro/capaPdf/{id}",
             "/livros/ativos",
-            "/livros",
             "/funcionario/livros",
     };
 
@@ -41,5 +40,9 @@ public class AccessRoutesUtil {
     };
     public static  final String[] ROTAS_COMPARTILHADAS = {
             "/venda/relatorio"
+    };
+    public static  final String[] ROTAS_COMPARTILHADAS2 = {
+            "/livros",
+            "/adm/cliente"
     };
 }

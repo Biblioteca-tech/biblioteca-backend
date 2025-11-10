@@ -11,7 +11,9 @@ public class WebConfig implements WebMvcConfigurer {
             registry.addMapping("/**")
                     .allowedOrigins(
                             "http://localhost:8080",
-                            "http://localhost:5173"
+                            "http://localhost:5173",
+                            "http://localhost:5175",
+                            "https://vacciniaceous-bryn-unperfumed.ngrok-free.dev/"
                     )
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                     .allowedHeaders("*")
