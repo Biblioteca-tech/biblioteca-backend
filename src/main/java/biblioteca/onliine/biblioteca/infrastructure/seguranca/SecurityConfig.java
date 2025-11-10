@@ -33,8 +33,10 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(AccessRoutesUtil.ROTAS_LIVRES).permitAll()
+                        .requestMatchers(AccessRoutesUtil.ROTAS_COMPARTILHADAS).hasAnyRole("ADMINISTRADOR", "CLIENTE")
                         .requestMatchers(AccessRoutesUtil.ROTAS_FUNCIONARIO).hasRole("FUNCIONARIO")
                         .requestMatchers(AccessRoutesUtil.ROTAS_ADMIN).hasRole("ADMINISTRADOR")
+                        .requestMatchers(AccessRoutesUtil.ROTAS_CLIENTE).hasRole("CLIENTE")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

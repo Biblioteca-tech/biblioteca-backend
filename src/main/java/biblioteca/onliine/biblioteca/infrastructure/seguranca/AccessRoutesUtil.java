@@ -2,22 +2,17 @@ package biblioteca.onliine.biblioteca.infrastructure.seguranca;
 
 public class AccessRoutesUtil {
     public static final String[] ROTAS_LIVRES = {
-            // ... (suas rotas livres existentes) ...
             "/auth/login",
             "/auth/cadastro",
             "/auth/cadastro-adm",
-            "/venda/**",
             "/livros/ativos",
-            "/cliente/**",
             "/livros/{id}",
-            "/alugueis/alugar",
             "/livros/pdf/{livroId}",
             "/livros/capa/{fileName}",
             "/usuarios/**",
     };
     public static final String[] ROTAS_FUNCIONARIO = {
             "/funcionario/**",
-            "/venda/**",
             "/livros/cadastrar",
             "/livros/deletar/{id}",
             "/funcionario/livros",
@@ -26,7 +21,6 @@ public class AccessRoutesUtil {
     public static final String[] ROTAS_ADMIN = {
             "/adm/**",
             "/auth/cadastrar-funcionario",
-            "/alugueis/historico-aluguel",
             "/alugueis/deletar-historico/{id}",
             "/livros/toggle-status/{id}",
             "/livros/atualizarLivro/{id}",
@@ -34,5 +28,18 @@ public class AccessRoutesUtil {
             "/livros/ativos",
             "/livros",
             "/funcionario/livros",
+    };
+
+    public static  final String[] ROTAS_CLIENTE = {
+            "/cliente/**",
+            "/venda/**",
+            "/alugueis/alugar",
+            "/cliente/meus-livros",
+            "/venda/vender",
+            "/alugueis/historico-aluguel",
+
+    };
+    public static  final String[] ROTAS_COMPARTILHADAS = {
+            "/venda/relatorio"
     };
 }
