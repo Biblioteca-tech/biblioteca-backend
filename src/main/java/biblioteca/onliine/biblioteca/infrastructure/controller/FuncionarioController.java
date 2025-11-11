@@ -22,7 +22,6 @@ import biblioteca.onliine.biblioteca.domain.port.repository.FuncionarioRepositor
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
 import biblioteca.onliine.biblioteca.usecase.service.FuncionarioService; // Importe o FuncionarioService
 import biblioteca.onliine.biblioteca.usecase.service.LivroService;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
