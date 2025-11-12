@@ -1,151 +1,178 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
+import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
+import biblioteca.onliine.biblioteca.domain.entity.Cliente;
+import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
 import biblioteca.onliine.biblioteca.usecase.service.AluguelService;
 import biblioteca.onliine.biblioteca.usecase.service.ClienteService;
 import biblioteca.onliine.biblioteca.usecase.service.LivroService;
-import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
-import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
-import biblioteca.onliine.biblioteca.domain.entity.Cliente; // Novo Import
-import biblioteca.onliine.biblioteca.domain.entity.Livro;   // Novo Import
-import biblioteca.onliine.biblioteca.infrastructure.seguranca.JwtAuthenticationFilter;
-import biblioteca.onliine.biblioteca.infrastructure.seguranca.SecurityConfig;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-// Configuração para carregar apenas a "fatia" Web (AluguelController),
-// excluindo a segurança explícita e auto-configurada que causa a falha de contexto.
-@WebMvcTest(
-        controllers = AluguelController.class,
-        excludeAutoConfiguration = SecurityAutoConfiguration.class,
-        excludeFilters = @ComponentScan.Filter(
-                type = FilterType.ASSIGNABLE_TYPE,
-                classes = SecurityConfig.class
-        )
-)
-public class AluguelControllerTest {
+class AluguelControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    // Dependências do Controller (devem ser Mockadas)
-    @MockBean
+    @Mock
     private AluguelService aluguelService;
 
-    @MockBean
+    @Mock
     private ClienteService clienteService;
 
-    @MockBean
+    @Mock
     private LivroService livroService;
 
-    // Moca a dependência AluguelRepository.
-    @MockBean
+    @Mock
     private AluguelRepository aluguelRepository;
 
-    // Moca o filtro JWT para evitar a falha de inicialização do ApplicationContext
-    @MockBean
-    private JwtAuthenticationFilter jwtAuthFilter;
-
-    private MockAluguelRequest requestBody;
-    private Aluguel aluguelRetorno;
-
-    // ENDPOINT: POST /alugueis
-    private final String BASE_URL = "/alugueis";
-
-    // --- CLASSES MOCK PARA SIMULAR A ESTRUTURA ANINHADA (Cliente e Livro) ---
-
-    // DTOs de requisição para espelhar a estrutura da entidade
-    public static record MockCliente(Long id) {}
-    public static record MockLivro(Long id) {}
-
-    /**
-     * DTO de Requisição Simulado, espelhando a estrutura da entidade Aluguel
-     */
-    public static record MockAluguelRequest(
-            MockCliente cliente,
-            MockLivro livro
-    ) {}
+    @InjectMocks
+    private AluguelController aluguelController;
 
     @BeforeEach
-    void setUp() {
-        // --- 1. Dados de Requisição (JSON com estrutura aninhada) ---
-        MockCliente mockClienteReq = new MockCliente(1L);
-        MockLivro mockLivroReq = new MockLivro(101L);
-        requestBody = new MockAluguelRequest(mockClienteReq, mockLivroReq);
-
-        // --- MOCKS DE ENTIDADES COMPLETAS (Criando objetos manualmente, já que @Builder não está presente em Cliente) ---
-
-        // 1. Instanciação e preenchimento de Cliente (subclasse de Usuario) usando setters
-        Cliente clienteMock = new Cliente();
-        clienteMock.setId(1L);
-        clienteMock.setNome("Mock Cliente");
-        clienteMock.setEmail("mock@test.com");
-
-        // 2. Instanciação e preenchimento de Livro (assumindo setters)
-        Livro livroMock = new Livro();
-        livroMock.setId(101L);
-        livroMock.setTitulo("Mock Livro");
-        livroMock.setAutor("Mock Autor");
-
-
-        // --- 3. Dados de Retorno (Entidade Aluguel Mockada e COMPLETA) ---
-        aluguelRetorno = Aluguel.builder()
-                .id(1L)
-                .cliente(clienteMock) // CAMPO ESSENCIAL ADICIONADO
-                .livro(livroMock)     // CAMPO ESSENCIAL ADICIONADO
-                .dataAluguel(LocalDateTime.now())
-                .dataDevolucao(LocalDateTime.now().plusDays(7))
-                .valorAluguel(10.0)
-                .status(biblioteca.onliine.biblioteca.domain.StatusAluguel.ATIVO)
-                .build();
+    void setup() {
+        MockitoAnnotations.openMocks(this);
     }
 
-    /**
-     * Testa o cenário de sucesso na criação de um novo aluguel, alinhando
-     * o corpo da requisição com a estrutura aninhada esperada e garantindo
-     * que o objeto de retorno seja totalmente serializável.
-     */
+    // -------------------------------------------------------------
+    // GET /alugueis
+    // -------------------------------------------------------------
     @Test
-    void testCriarAluguel_Success() throws Exception {
-        // Moca o método correto: aluguelService.save(aluguel).
-        when(aluguelService.save(
-                any(Aluguel.class)
-        )).thenReturn(aluguelRetorno);
+    void deveListarTodosAlugueisAtivos() {
+        List<Aluguel> alugueis = List.of(new Aluguel(), new Aluguel());
+        when(aluguelService.findAllAtivos()).thenReturn(alugueis);
 
-        // Execução da requisição simulada no endpoint POST /alugueis
-        mockMvc.perform(post(BASE_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestBody)))
+        ResponseEntity<List<Aluguel>> resposta = aluguelController.listarTodosAtivos();
 
-                // CORRIGIDO: O Controller foi refatorado para garantir o retorno de 201 Created.
-                .andExpect(status().isCreated()) // Revertido para isCreated() (201)
-
-                .andExpect(jsonPath("$.id").value(aluguelRetorno.getId()))
-                // Verificações adicionais para garantir que o corpo do JSON foi gerado:
-                .andExpect(jsonPath("$.cliente.id").value(aluguelRetorno.getCliente().getId()))
-                .andExpect(jsonPath("$.livro.id").value(aluguelRetorno.getLivro().getId()));
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
+        assertEquals(2, resposta.getBody().size());
+        verify(aluguelService, times(1)).findAllAtivos();
     }
 
-    // ----------------------------------------------------
-    // TODO: Adicionar testes para validação, autenticação negada, recursos não encontrados, etc.
-    // ----------------------------------------------------
+    // -------------------------------------------------------------
+    // GET /alugueis/cliente/{clienteId}
+    // -------------------------------------------------------------
+    @Test
+    void deveRetornarAlugueisDoCliente() {
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+
+        List<Aluguel> alugueis = List.of(new Aluguel(), new Aluguel());
+        when(clienteService.findById(1L)).thenReturn(Optional.of(cliente));
+        when(aluguelService.findByCliente(cliente)).thenReturn(alugueis);
+
+        ResponseEntity<?> resposta = aluguelController.listarAlugueisPorCliente(1L);
+
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
+        assertEquals(alugueis, resposta.getBody());
+    }
+
+    @Test
+    void deveRetornarNotFoundQuandoClienteNaoExiste() {
+        when(clienteService.findById(999L)).thenReturn(Optional.empty());
+
+        ResponseEntity<?> resposta = aluguelController.listarAlugueisPorCliente(999L);
+
+        assertEquals(HttpStatus.NOT_FOUND, resposta.getStatusCode());
+        assertEquals("Cliente não encontrado", resposta.getBody());
+    }
+
+    // -------------------------------------------------------------
+    // POST /alugueis
+    // -------------------------------------------------------------
+    @Test
+    void deveCriarAluguel() {
+        Aluguel aluguel = new Aluguel();
+        Aluguel salvo = new Aluguel();
+        salvo.setId(1L);
+
+        when(aluguelService.save(aluguel)).thenReturn(salvo);
+
+        ResponseEntity<?> resposta = aluguelController.criarAluguel(aluguel);
+
+        assertEquals(HttpStatus.CREATED, resposta.getStatusCode());
+        assertEquals(salvo, resposta.getBody());
+    }
+
+    // -------------------------------------------------------------
+    // POST /alugueis/alugar
+    // -------------------------------------------------------------
+    @Test
+    void deveAlugarLivroComSucesso() {
+        Cliente cliente = new Cliente();
+        cliente.setId(10L);
+
+        Aluguel aluguel = new Aluguel();
+        when(clienteService.findByEmail("email@teste.com")).thenReturn(Optional.of(cliente));
+        when(aluguelService.alugarLivro(10L, 5L, 7)).thenReturn(aluguel);
+
+        ResponseEntity<?> resposta = aluguelController.alugarLivro("email@teste.com", 5L, 7);
+
+        assertEquals(HttpStatus.CREATED, resposta.getStatusCode());
+        assertEquals(aluguel, resposta.getBody());
+    }
+
+    @Test
+    void deveRetornarNotFoundQuandoClienteNaoExisteAoAlugar() {
+        when(clienteService.findByEmail("naoexiste@teste.com")).thenReturn(Optional.empty());
+
+        ResponseEntity<?> resposta = aluguelController.alugarLivro("naoexiste@teste.com", 5L, 7);
+
+        assertEquals(HttpStatus.NOT_FOUND, resposta.getStatusCode());
+        assertEquals("Cliente não encontrado", resposta.getBody());
+    }
+
+    @Test
+    void deveRetornarBadRequestQuandoFalhaAoAlugar() {
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+        when(clienteService.findByEmail("teste@teste.com")).thenReturn(Optional.of(cliente));
+        when(aluguelService.alugarLivro(1L, 5L, 7)).thenThrow(new RuntimeException("Livro indisponível"));
+
+        ResponseEntity<?> resposta = aluguelController.alugarLivro("teste@teste.com", 5L, 7);
+
+        assertEquals(HttpStatus.BAD_REQUEST, resposta.getStatusCode());
+        assertEquals("Livro indisponível", resposta.getBody());
+    }
+
+    // -------------------------------------------------------------
+    // DELETE /alugueis/deletar-historico/{id}
+    // -------------------------------------------------------------
+    @Test
+    void deveDeletarAluguelQuandoExiste() {
+        when(aluguelRepository.existsById(1L)).thenReturn(true);
+
+        aluguelController.deletarAluguel(1L);
+
+        verify(aluguelRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoAluguelNaoExiste() {
+        when(aluguelRepository.existsById(1L)).thenReturn(false);
+
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> aluguelController.deletarAluguel(1L));
+        assertEquals("Aluguel não encontrado para exclusão", ex.getMessage());
+    }
+
+    // -------------------------------------------------------------
+    // GET /alugueis/historico-aluguel
+    // -------------------------------------------------------------
+    @Test
+    void deveListarHistoricoDeAlugueis() {
+        List<Aluguel> historico = List.of(new Aluguel());
+        when(aluguelService.listarHistorico()).thenReturn(historico);
+
+        ResponseEntity<List<Aluguel>> resposta = aluguelController.listarHistoricoAluguel();
+
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
+        assertEquals(historico, resposta.getBody());
+        verify(aluguelService, times(1)).listarHistorico();
+    }
 }
