@@ -9,7 +9,6 @@ public class AccessRoutesUtil {
             "/livros/{id}",
             "/livros/pdf/{livroId}",
             "/livros/capa/{fileName}",
-            "/usuarios/**",
     };
     public static final String[] ROTAS_FUNCIONARIO = {
             "/funcionario/**",
@@ -39,7 +38,8 @@ public class AccessRoutesUtil {
 
     };
     public static  final String[] ROTAS_COMPARTILHADAS = {
-            "/venda/relatorio"
+            "/venda/relatorio",
+            "/usuarios/**"
     };
     public static  final String[] ROTAS_COMPARTILHADAS2 = {
             "/livros",

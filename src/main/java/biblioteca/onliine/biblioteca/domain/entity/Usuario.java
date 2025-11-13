@@ -35,7 +35,7 @@ public abstract class Usuario implements UserDetails {
     private String cpf;
 
     @Enumerated(EnumType.STRING)
-    private Status statusCliente = Status.ATIVO; // Status agora é um atributo de todos os usuários
+    private Status statusCliente = Status.ATIVO;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "usuario_roles", joinColumns = @JoinColumn(name = "usuario_id"))
