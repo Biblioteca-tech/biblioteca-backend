@@ -4,8 +4,6 @@ import biblioteca.onliine.biblioteca.domain.Status;
 
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
-import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
-import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import biblioteca.onliine.biblioteca.usecase.service.LivroService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

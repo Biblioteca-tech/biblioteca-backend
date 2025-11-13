@@ -1,20 +1,15 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
-import biblioteca.onliine.biblioteca.domain.StatusAluguel;
 import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
-import biblioteca.onliine.biblioteca.domain.entity.Livro;
-import biblioteca.onliine.biblioteca.domain.entity.Venda;
 import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
 import biblioteca.onliine.biblioteca.usecase.service.AluguelService;
 import biblioteca.onliine.biblioteca.usecase.service.ClienteService;
 import biblioteca.onliine.biblioteca.usecase.service.LivroService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 

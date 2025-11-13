@@ -4,7 +4,6 @@ import biblioteca.onliine.biblioteca.domain.StatusAluguel;
 import biblioteca.onliine.biblioteca.domain.dto.LivroDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
-import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
 import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
