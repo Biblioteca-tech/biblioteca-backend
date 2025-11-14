@@ -40,9 +40,6 @@ class AluguelControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    // -------------------------------------------------------------
-    // GET /alugueis
-    // -------------------------------------------------------------
     @Test
     void deveListarTodosAlugueisAtivos() {
         List<Aluguel> alugueis = List.of(new Aluguel(), new Aluguel());
@@ -55,9 +52,6 @@ class AluguelControllerTest {
         verify(aluguelService, times(1)).findAllAtivos();
     }
 
-    // -------------------------------------------------------------
-    // GET /alugueis/cliente/{clienteId}
-    // -------------------------------------------------------------
     @Test
     void deveRetornarAlugueisDoCliente() {
         Cliente cliente = new Cliente();
@@ -83,9 +77,6 @@ class AluguelControllerTest {
         assertEquals("Cliente não encontrado", resposta.getBody());
     }
 
-    // -------------------------------------------------------------
-    // POST /alugueis
-    // -------------------------------------------------------------
     @Test
     void deveCriarAluguel() {
         Aluguel aluguel = new Aluguel();
@@ -100,9 +91,6 @@ class AluguelControllerTest {
         assertEquals(salvo, resposta.getBody());
     }
 
-    // -------------------------------------------------------------
-    // POST /alugueis/alugar
-    // -------------------------------------------------------------
     @Test
     void deveAlugarLivroComSucesso() {
         Cliente cliente = new Cliente();
@@ -141,9 +129,6 @@ class AluguelControllerTest {
         assertEquals("Livro indisponível", resposta.getBody());
     }
 
-    // -------------------------------------------------------------
-    // DELETE /alugueis/deletar-historico/{id}
-    // -------------------------------------------------------------
     @Test
     void deveDeletarAluguelQuandoExiste() {
         when(aluguelRepository.existsById(1L)).thenReturn(true);
@@ -161,9 +146,7 @@ class AluguelControllerTest {
         assertEquals("Aluguel não encontrado para exclusão", ex.getMessage());
     }
 
-    // -------------------------------------------------------------
-    // GET /alugueis/historico-aluguel
-    // -------------------------------------------------------------
+
     @Test
     void deveListarHistoricoDeAlugueis() {
         List<Aluguel> historico = List.of(new Aluguel());
