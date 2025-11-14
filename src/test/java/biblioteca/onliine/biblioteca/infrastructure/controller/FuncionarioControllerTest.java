@@ -49,38 +49,8 @@ class FuncionarioControllerTest {
                 clienteRepository,
                 aluguelRepository,
                 livroRepository,
-                funcionarioRepository,
-                passwordEncoder,
                 funcionarioService
         );
-    }
-
-    @Test
-    void deveAtualizarDadosFuncionarioComSucesso() {
-        FuncionarioInputDTO dto = new FuncionarioInputDTO();
-        dto.setSenha("novaSenha");
-
-        Funcionario funcionario = mock(Funcionario.class);
-        when(funcionarioRepository.findById(1L)).thenReturn(Optional.of(funcionario));
-        when(passwordEncoder.encode("novaSenha")).thenReturn("HASH123");
-
-        ResponseEntity<String> response = funcionarioController.atualizarDadosFuncionario(1L, dto);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Dados do funcionário atualizados com sucesso!", response.getBody());
-        verify(funcionarioRepository).save(funcionario);
-        assertEquals("HASH123", dto.getSenha());
-    }
-
-    @Test
-    void deveRetornarNotFoundAoAtualizarFuncionarioInexistente() {
-        when(funcionarioRepository.findById(99L)).thenReturn(Optional.empty());
-
-        FuncionarioInputDTO dto = new FuncionarioInputDTO();
-        ResponseEntity<String> response = funcionarioController.atualizarDadosFuncionario(99L, dto);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals("Funcionário não encontrado.", response.getBody());
     }
 
     @Test

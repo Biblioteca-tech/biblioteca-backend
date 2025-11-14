@@ -1,11 +1,13 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
+import biblioteca.onliine.biblioteca.domain.dto.FuncionarioInputDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
 import biblioteca.onliine.biblioteca.domain.port.repository.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,12 +21,16 @@ public class AdmController {
     private final AdmRepository admRepository;
     private final VendaRepository vendaRepository;
     private final LivroRepository livroRepository;
+    private final FuncionarioRepository funcionarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AdmController(ClienteRepository clienteRepository, AdmRepository admRepository, VendaRepository vendaRepository, LivroRepository livroRepository) {
+    public AdmController(ClienteRepository clienteRepository, AdmRepository admRepository, VendaRepository vendaRepository, LivroRepository livroRepository,  FuncionarioRepository funcionarioRepository, PasswordEncoder passwordEncoder) {
         this.clienteRepository = clienteRepository;
         this.admRepository = admRepository;
         this.vendaRepository = vendaRepository;
         this.livroRepository = livroRepository;
+        this.funcionarioRepository = funcionarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // BUSCAR TODOS OS CLIENTES //
@@ -49,6 +55,13 @@ public class AdmController {
     @GetMapping("/buscar-funcionario")
     public List<Funcionario> buscarFuncionarios() {
         return admRepository.findAll();
+    }
+
+    @GetMapping("/funcionario/{id}")
+    public ResponseEntity<Funcionario> buscarFuncionario(@PathVariable Long id) {
+        return admRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // DELETAR FUNCIONARIO
@@ -98,6 +111,26 @@ public class AdmController {
                     return ResponseEntity.ok("Livro desativado com sucesso!");
                 })
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado"));
+    }
+
+    @PutMapping("/atualizarDados/{id}")
+    public ResponseEntity<String> atualizarDadosFuncionario(@PathVariable Long id, @RequestBody FuncionarioInputDTO dadosAtualizados) {
+        Optional<Funcionario> funcionarioOpt = funcionarioRepository.findById(id);
+
+        if (funcionarioOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Funcionário não encontrado.");
+        }
+
+        if (dadosAtualizados.getSenha() != null && !dadosAtualizados.getSenha().isEmpty()) {
+            String senhaCriptografada = passwordEncoder.encode(dadosAtualizados.getSenha());
+            dadosAtualizados.setSenha(senhaCriptografada);
+        }
+
+        Funcionario funcionarioExistente = funcionarioOpt.get();
+        funcionarioExistente.atualizarDados(dadosAtualizados);
+        funcionarioRepository.save(funcionarioExistente);
+
+        return ResponseEntity.ok("Dados do funcionário atualizados com sucesso!");
     }
 
 }

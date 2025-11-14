@@ -38,41 +38,17 @@ public class FuncionarioController {
     private final ClienteRepository clienteRepository;
     private final AluguelRepository aluguelRepository;
     private final LivroRepository livroRepository;
-    private final FuncionarioRepository funcionarioRepository;
-    private final PasswordEncoder passwordEncoder;
     private final FuncionarioService funcionarioService; // Declare o service
 
     // Construtor completo com todas as injeções
-    public FuncionarioController(LivroService livroService, ClienteRepository clienteRepository, AluguelRepository aluguelRepository, LivroRepository livroRepository, FuncionarioRepository funcionarioRepository, PasswordEncoder passwordEncoder, FuncionarioService funcionarioService) {
+    public FuncionarioController(LivroService livroService, ClienteRepository clienteRepository, AluguelRepository aluguelRepository, LivroRepository livroRepository, FuncionarioService funcionarioService) {
         this.livroService = livroService;
         this.clienteRepository = clienteRepository;
         this.aluguelRepository = aluguelRepository;
         this.livroRepository = livroRepository;
-        this.funcionarioRepository = funcionarioRepository;
-        this.passwordEncoder = passwordEncoder;
         this.funcionarioService = funcionarioService; // Inicialize o service
     }
 
-
-    @PutMapping("/atualizarDados/{id}")
-    public ResponseEntity<String> atualizarDadosFuncionario(@PathVariable Long id, @RequestBody FuncionarioInputDTO dadosAtualizados) {
-        Optional<Funcionario> funcionarioOpt = funcionarioRepository.findById(id);
-
-        if (funcionarioOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Funcionário não encontrado.");
-        }
-
-        if (dadosAtualizados.getSenha() != null && !dadosAtualizados.getSenha().isEmpty()) {
-            String senhaCriptografada = passwordEncoder.encode(dadosAtualizados.getSenha());
-            dadosAtualizados.setSenha(senhaCriptografada);
-        }
-
-        Funcionario funcionarioExistente = funcionarioOpt.get();
-        funcionarioExistente.atualizarDados(dadosAtualizados);
-        funcionarioRepository.save(funcionarioExistente);
-
-        return ResponseEntity.ok("Dados do funcionário atualizados com sucesso!");
-    }
 
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<String> deletarFuncionario(@PathVariable Long id) {

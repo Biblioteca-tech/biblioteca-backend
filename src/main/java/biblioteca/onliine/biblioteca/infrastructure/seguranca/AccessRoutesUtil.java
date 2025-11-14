@@ -21,11 +21,10 @@ public class AccessRoutesUtil {
             "/adm/**",
             "/auth/cadastrar-funcionario",
             "/alugueis/deletar-historico/{id}",
-            "/livros/toggle-status/{id}",
-            "/livros/atualizarLivro/{id}",
             "/livros/atualizarLivro/capaPdf/{id}",
             "/livros/ativos",
             "/funcionario/livros",
+            "/adm/atualizarDados/{id}"
     };
 
     public static  final String[] ROTAS_CLIENTE = {
@@ -39,10 +38,12 @@ public class AccessRoutesUtil {
     };
     public static  final String[] ROTAS_COMPARTILHADAS = {
             "/venda/relatorio",
-            "/usuarios/**"
     };
     public static  final String[] ROTAS_COMPARTILHADAS2 = {
             "/livros",
-            "/adm/cliente"
+            "/adm/cliente",
+            "/livros/toggle-status/{id}",
+            "/usuarios/**",
+            "/livros/atualizarLivro/{id}",
     };
 }

@@ -46,7 +46,7 @@ public class AluguelService {
                 .livro(livro)
                 .dataAluguel(LocalDateTime.now())
 //                .dataDevolucao(LocalDateTime.now().plusDays(10))
-                .dataDevolucao(LocalDateTime.now().plusSeconds(5))
+                .dataDevolucao(LocalDateTime.now().plusSeconds(60))
                 .valorAluguel(valorAluguel)
                 .status(StatusAluguel.ATIVO)
                 .build();
@@ -77,7 +77,7 @@ public class AluguelService {
         return aluguelRepository.findAll();
     }
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 60000)
     public void verificarAlugueisVencidos() {
         List<Aluguel> alugueis = aluguelRepository.findAll();
         LocalDateTime agora = LocalDateTime.now();
