@@ -72,9 +72,6 @@ public class AluguelService {
         }
         return aluguelRepository.save(aluguel);
     }
-    public List<Aluguel> listarTodosAlugueis() {
-        return aluguelRepository.findByStatus(StatusAluguel.ATRASADO);
-    }
 
     public List<Aluguel> listarHistorico() {
         return aluguelRepository.findAll();
