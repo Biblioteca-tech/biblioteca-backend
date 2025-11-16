@@ -1,11 +1,14 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
+import biblioteca.onliine.biblioteca.domain.dto.AdminUpdateDTO;
 import biblioteca.onliine.biblioteca.domain.dto.FuncionarioInputDTO;
 import biblioteca.onliine.biblioteca.domain.dto.GerenciarClientesDTO;
+import biblioteca.onliine.biblioteca.domain.entity.Administrador;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
 import biblioteca.onliine.biblioteca.domain.port.repository.*;
+import biblioteca.onliine.biblioteca.usecase.service.AdmService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,14 +27,17 @@ public class AdmController {
     private final LivroRepository livroRepository;
     private final FuncionarioRepository funcionarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AdmService admService;
 
-    public AdmController(ClienteRepository clienteRepository, AdmRepository admRepository, VendaRepository vendaRepository, LivroRepository livroRepository,  FuncionarioRepository funcionarioRepository, PasswordEncoder passwordEncoder) {
+
+    public AdmController(AdmService admService  ,ClienteRepository clienteRepository, AdmRepository admRepository, VendaRepository vendaRepository, LivroRepository livroRepository,  FuncionarioRepository funcionarioRepository, PasswordEncoder passwordEncoder) {
         this.clienteRepository = clienteRepository;
         this.admRepository = admRepository;
         this.vendaRepository = vendaRepository;
         this.livroRepository = livroRepository;
         this.funcionarioRepository = funcionarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.admService = admService;
     }
 
     // BUSCAR TODOS OS CLIENTES //
@@ -142,5 +148,15 @@ public class AdmController {
 
         return ResponseEntity.ok("Dados do funcionário atualizados com sucesso!");
     }
+    @GetMapping("/perfil")
+    public Administrador getPerfil() {
+        return admService.getPerfilLogado();
+    }
+
+    @PutMapping("/perfil")
+    public Administrador atualizarPerfil(@RequestBody AdminUpdateDTO dto) {
+        return admService.atualizarPerfil(dto);
+    }
+
 
 }

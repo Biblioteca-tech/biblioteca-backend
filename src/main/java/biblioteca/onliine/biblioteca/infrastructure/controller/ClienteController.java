@@ -1,5 +1,6 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
+import biblioteca.onliine.biblioteca.domain.Status;
 import biblioteca.onliine.biblioteca.domain.StatusAluguel;
 import biblioteca.onliine.biblioteca.domain.dto.LivroDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -111,7 +111,6 @@ public class ClienteController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
         }
 
-        // Atualiza os campos apenas se vierem no corpo da requisição
         if (body.containsKey("nome")) {
             cliente.setNome((String) body.get("nome"));
         }
@@ -146,5 +145,11 @@ public class ClienteController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
         }
         return ResponseEntity.ok(cliente);
+    }
+
+    @GetMapping("/ativos")
+    public ResponseEntity<?> clientesAtivos() {
+        List<Cliente> clientes = clienteRepository.findByStatusCliente(Status.ATIVO);
+        return ResponseEntity.ok(clientes);
     }
 }

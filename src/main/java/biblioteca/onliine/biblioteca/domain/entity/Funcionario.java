@@ -43,5 +43,6 @@ public class Funcionario extends Usuario {
         if (dados.getDataAdmissao() != null) this.dataAdmissao = dados.getDataAdmissao();
         if (dados.getNumeroTelefone() != null) this.numeroTelefone = dados.getNumeroTelefone();
         if (dados.getEndereco() != null) this.endereco = dados.getEndereco();
+        this.setGenero(dados.getGenero());
     }
 }

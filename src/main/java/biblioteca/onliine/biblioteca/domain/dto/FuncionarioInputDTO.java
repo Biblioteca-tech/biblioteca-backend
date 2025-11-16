@@ -1,10 +1,10 @@
 package biblioteca.onliine.biblioteca.domain.dto;
 
+import biblioteca.onliine.biblioteca.domain.GeneroPessoa;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Getter
 @Setter
@@ -18,4 +18,5 @@ public class FuncionarioInputDTO {
     private LocalDate dataAdmissao;
     private String numeroTelefone;
     private String endereco;
+    private GeneroPessoa genero;
 }
