@@ -14,10 +14,9 @@ public class ClienteLivroController {
         this.clienteLivroService = clienteLivroService;
     }
 
-
-    @DeleteMapping("/remover/{livroId}")
-    public ResponseEntity<?> removerLivro(@PathVariable Long livroId) {
-        clienteLivroService.removerLivroDaBiblioteca(livroId);
+    @DeleteMapping("/remover/{clienteLivroId}")
+    public ResponseEntity<?> removerLivro(@PathVariable Long clienteLivroId) {
+        clienteLivroService.removerLivroDaBiblioteca(clienteLivroId);
         return ResponseEntity.ok("Livro removido da sua biblioteca.");
     }
 
@@ -25,5 +24,6 @@ public class ClienteLivroController {
     public ResponseEntity<?> listarMeusLivros() {
         return ResponseEntity.ok(clienteLivroService.listarMeusLivros());
     }
+
 
 }

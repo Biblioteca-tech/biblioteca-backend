@@ -249,7 +249,6 @@ public class LivroController {
         String uploadDir = this.diretorio;
         Files.createDirectories(Paths.get(uploadDir));
 
-        // Excluir capa anterior
         if (livro.getCapaPath() != null) {
             Path caminhoAntigo = Paths.get(uploadDir, livro.getCapaPath());
             Files.deleteIfExists(caminhoAntigo);

@@ -2,7 +2,7 @@ package biblioteca.onliine.biblioteca.domain.dto;
 
 import biblioteca.onliine.biblioteca.domain.Status;
 
-public record ListarLivrosDTO(
+public record ListarLivrosDTO (
         Long id,
         String titulo,
         String autor,

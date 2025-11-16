@@ -1,5 +1,6 @@
 package biblioteca.onliine.biblioteca.usecase.service;
 
+import biblioteca.onliine.biblioteca.domain.dto.ClienteLivroDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.ClienteLivro;
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteLivroRepository;
@@ -24,28 +25,43 @@ public class ClienteLivroService {
     }
 
 
-    public void removerLivroDaBiblioteca(Long livroId) {
-        Long clienteId = clienteLogado().getId();
+    public void removerLivroDaBiblioteca(Long clienteLivroId) {
+        ClienteLivro item = clienteLivroRepository.findById(clienteLivroId)
+                .orElseThrow(() -> new RuntimeException("Item não encontrado."));
 
-        if (!clienteLivroRepository.existsByClienteIdAndLivroId(clienteId, livroId)) {
-            throw new RuntimeException("Este livro não está na sua biblioteca.");
-        }
-
-        if (clienteLivroRepository.existsByClienteIdAndLivroId(clienteId, livroId)) {
-            clienteLivroRepository.deleteByClienteIdAndLivroId(clienteId, livroId);
-        }
+        clienteLivroRepository.delete(item);
     }
 
-    public List<ClienteLivro> listarMeusLivros() {
+    public List<ClienteLivroDTO> listarMeusLivros() {
         Long clienteId = clienteLogado().getId();
-        return clienteLivroRepository.findByClienteId(clienteId);
+
+        List<ClienteLivro> lista = clienteLivroRepository.findByClienteId(clienteId);
+
+        return lista.stream()
+                .map(this::toDTO)
+                .toList();
     }
+
 
     private Cliente clienteLogado() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         return clienteRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+    }
+    private ClienteLivroDTO toDTO(ClienteLivro clienteLivro) {
+        ClienteLivroDTO dto = new ClienteLivroDTO();
+
+        dto.setId(clienteLivro.getId());
+        dto.setLivroId(clienteLivro.getLivro().getId());
+        dto.setTitulo(clienteLivro.getLivro().getTitulo());
+        dto.setAutor(clienteLivro.getLivro().getAutor());
+        dto.setStatus(clienteLivro.getLivro().getStatusLivro().name());
+        dto.setCapaPath(clienteLivro.getLivro().getCapaPath());
+        dto.setPdfPath(clienteLivro.getLivro().getPdfPath());
+        dto.setDataAdicionado(clienteLivro.getDataAdicionado().toString());
+
+        return dto;
     }
 
 }
