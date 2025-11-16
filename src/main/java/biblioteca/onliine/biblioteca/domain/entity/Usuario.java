@@ -1,5 +1,6 @@
 package biblioteca.onliine.biblioteca.domain.entity;
 
+import biblioteca.onliine.biblioteca.domain.GeneroPessoa;
 import biblioteca.onliine.biblioteca.domain.Status;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -11,6 +12,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -31,8 +35,11 @@ public abstract class Usuario implements UserDetails {
     private String nome;
     private String email;
     private String senha;
-    private Date data_nascimento;
+    private LocalDate data_nascimento;
     private String cpf;
+
+    @Enumerated(EnumType.STRING)
+    private GeneroPessoa genero;
 
     @Enumerated(EnumType.STRING)
     private Status statusCliente = Status.ATIVO;
@@ -67,4 +74,11 @@ public abstract class Usuario implements UserDetails {
     public boolean isCredentialsNonExpired() { return true; }
     @Override
     public boolean isEnabled() { return true; }
+
+    public int getIdade() {
+        if (this.data_nascimento == null) {
+            return 0; // ou algum valor padrão que queira usar
+        }
+        return Period.between(this.data_nascimento, LocalDate.now()).getYears();
+    }
 }

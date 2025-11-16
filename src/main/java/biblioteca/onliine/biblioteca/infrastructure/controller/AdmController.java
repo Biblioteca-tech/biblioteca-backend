@@ -1,6 +1,7 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
 import biblioteca.onliine.biblioteca.domain.dto.FuncionarioInputDTO;
+import biblioteca.onliine.biblioteca.domain.dto.GerenciarClientesDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
 import biblioteca.onliine.biblioteca.domain.entity.Venda;
@@ -35,8 +36,17 @@ public class AdmController {
 
     // BUSCAR TODOS OS CLIENTES //
     @GetMapping("/cliente")
-    public List<Cliente> buscarClientes() {
-        return clienteRepository.findAll();
+    public List<GerenciarClientesDTO> buscarClientes() {
+        return clienteRepository.findAll()
+                .stream()
+                .map(l -> new GerenciarClientesDTO(
+                        l.getId(),
+                        l.getNome(),
+                        l.getEmail(),
+                        l.getData_nascimento(),
+                        l.getCpf(),
+                        l.getStatusCliente()
+                )).toList();
     }
 
 

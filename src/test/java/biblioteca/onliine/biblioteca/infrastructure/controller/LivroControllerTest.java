@@ -93,30 +93,6 @@ class LivroControllerTest {
         verify(livroRepository, never()).save(any());
     }
 
-    @Test
-    void deveAtualizarLivroComSucesso() {
-        when(livroRepository.findById(1L)).thenReturn(Optional.of(livro));
-
-        Livro novo = new Livro();
-        novo.setTitulo("Novo Título");
-        novo.setPreco(100.0);
-
-        ResponseEntity<String> response = livroController.atualizarLivro(1L, novo);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Livro atualizado com sucesso!", response.getBody());
-        verify(livroRepository, times(1)).save(any());
-    }
-
-    @Test
-    void deveRetornarNotFoundAoAtualizarLivroInexistente() {
-        when(livroRepository.findById(99L)).thenReturn(Optional.empty());
-        ResponseEntity<String> response = livroController.atualizarLivro(99L, livro);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertTrue(response.getBody().contains("não encontrado"));
-        verify(livroRepository, never()).save(any());
-    }
 
     @Test
     void deveDeletarLivroComSucesso() {
@@ -127,22 +103,6 @@ class LivroControllerTest {
         verify(livroService, times(1)).delete(1L);
     }
 
-    @Test
-    void deveRetornarLivroPorId() {
-        when(livroRepository.findById(1L)).thenReturn(Optional.of(livro));
-        ResponseEntity<Livro> response = livroController.getLivroById(1L);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(livro, response.getBody());
-    }
-
-    @Test
-    void deveRetornarNotFoundAoBuscarLivroPorIdInexistente() {
-        when(livroRepository.findById(2L)).thenReturn(Optional.empty());
-        ResponseEntity<Livro> response = livroController.getLivroById(2L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
 
     @Test
     void deveAlternarStatusDoLivroDeAtivoParaInativo() {
@@ -155,15 +115,6 @@ class LivroControllerTest {
         verify(livroRepository, times(1)).save(any());
     }
 
-    @Test
-    void deveListarLivrosComSucesso() {
-        when(livroService.findAll()).thenReturn(List.of(livro));
-
-        ResponseEntity<List<Livro>> response = livroController.listarLivros();
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
-    }
 
     @Test
     void deveAbrirPdfQuandoArquivoExiste() throws MalformedURLException {

@@ -2,6 +2,7 @@ package biblioteca.onliine.biblioteca.usecase.service;
 
 import biblioteca.onliine.biblioteca.domain.Status;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
+import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.Optional;
 public class LivroService {
 
     private final LivroRepository livroRepository;
+    private final ClienteRepository clienteRepository;
 
     public Livro save(Livro livro) {
         return livroRepository.save(livro);
@@ -33,12 +35,24 @@ public class LivroService {
     }
 
     public ResponseEntity<String> delete(Long id) {
-        Optional<Livro> livroOpt = livroRepository.findById(id);
-        if (livroOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        boolean livroVinculado = clienteRepository.existsByLivros_Id(id);
+        if (livroVinculado) {
+            return ResponseEntity
+                    .status(400)
+                    .body("Não é possível deletar um livro que está conectado a um cliente.");
         }
-        livroRepository.delete(livroOpt.get());
-        return ResponseEntity.ok("Livro deletado com sucesso!");
+
+        Optional<Livro> livro = livroRepository.findById(id);
+        if (livro.isEmpty()) {
+            return ResponseEntity
+                    .status(404)
+                    .body("Livro não encontrado.");
+        }
+        livroRepository.deleteById(id);
+
+        return ResponseEntity
+                .status(200)
+                .body("Livro deletado com sucesso!");
     }
 
     public List<Livro> findAtivos() {

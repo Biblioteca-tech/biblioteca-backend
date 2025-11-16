@@ -1,12 +1,13 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
 import biblioteca.onliine.biblioteca.domain.Status;
-
+import biblioteca.onliine.biblioteca.domain.dto.BuscaLivrosIdDTO;
+import biblioteca.onliine.biblioteca.domain.dto.ListarLivrosDTO;
+import biblioteca.onliine.biblioteca.domain.dto.LivrosDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
 import biblioteca.onliine.biblioteca.usecase.service.LivroService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -21,8 +22,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:5173")
@@ -100,43 +104,28 @@ public class LivroController {
         return ResponseEntity.ok("Livro atualizado com sucesso!");
     }
 
-    @PostMapping(value = "/atualizarLivro/capaPdf/{id}", consumes = {"multipart/form-data"})
-    public ResponseEntity<String> atualizarArquivosLivro(@PathVariable Long id,
-                                                         @RequestPart(value = "capa", required = false) MultipartFile capa,
-                                                         @RequestPart(value = "pdf", required = false) MultipartFile pdf) throws IOException {
-        Optional<Livro> livroOpt = livroRepository.findById(id);
-        if (livroOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado.");
-        }
-
-        Livro livroExistente = livroOpt.get();
-        String uploadDir = this.diretorio;
-        Files.createDirectories(Paths.get(uploadDir));
-
-        if (capa != null && !capa.isEmpty()) {
-            String capaFileName = System.currentTimeMillis() + "_" + capa.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
-            capa.transferTo(new File(uploadDir + capaFileName));
-            livroExistente.setCapaPath(capaFileName);
-        }
-
-        if (pdf != null && !pdf.isEmpty()) {
-            String pdfFileName = System.currentTimeMillis() + "_" + pdf.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
-            pdf.transferTo(new File(uploadDir + pdfFileName));
-            livroExistente.setPdfPath(pdfFileName);
-        }
-
-        livroRepository.save(livroExistente);
-        return ResponseEntity.ok("Arquivos (capa e/ou pdf) do livro atualizados com sucesso!");
-    }
-
     @DeleteMapping(value = "/deletar/{id}")
     public ResponseEntity<String> deletarLivro(@PathVariable("id") Long id) {
         return livroService.delete(id);
     }
 
     @GetMapping("/ativos")
-    public List<Livro> getLivrosAtivos() {
-        return livroRepository.findByStatusLivro(Status.ATIVO);
+    public List<LivrosDTO> getLivrosAtivos() {
+        return livroRepository.findByStatusLivro(Status.ATIVO)
+                .stream()
+                .map(l -> new LivrosDTO(
+                        l.getId(),
+                        l.getTitulo(),
+                        l.getAutor(),
+                        l.getEditora(),
+                        l.getAno_publicacao(),
+                        l.getGenero().name(),
+                        l.getSinopse(),
+                        l.getIdioma().name(),
+                        l.getCapaPath(),
+                        l.getPreco()
+                ))
+                .toList();
     }
 
     @GetMapping(value = "/pdf/{livroId}")
@@ -181,12 +170,28 @@ public class LivroController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Livro> getLivroById(@PathVariable Long id) {
+    public ResponseEntity<BuscaLivrosIdDTO> getLivroById(@PathVariable Long id) {
         Optional<Livro> livroOpt = livroRepository.findById(id);
-        if (livroOpt.isEmpty()) return ResponseEntity.notFound().build();
-
+        if (livroOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         Livro livro = livroOpt.get();
-        return ResponseEntity.ok(livro);
+        BuscaLivrosIdDTO dto = new BuscaLivrosIdDTO(
+                livro.getId(),
+                livro.getTitulo(),
+                livro.getAutor(),
+                livro.getEditora(),
+                livro.getAno_publicacao(),
+                livro.getGenero(),
+                livro.getSinopse(),
+                livro.getIdioma(),
+                livro.getPreco(),
+                livro.getStatusLivro(),
+                livro.getPdfPath(),
+                livro.getCapaPath()
+        );
+
+        return ResponseEntity.ok(dto);
     }
 
     // STATUS LIVRO
@@ -206,9 +211,70 @@ public class LivroController {
         return ResponseEntity.ok(livro);
     }
 
-    @GetMapping()
-    public ResponseEntity<List<Livro>> listarLivros() {
-        List<Livro> livros = livroService.findAll();
-        return ResponseEntity.ok(livros);
+    @GetMapping
+    public List<ListarLivrosDTO> listar() {
+        return livroRepository.findAll()
+                .stream()
+                .map(l -> new ListarLivrosDTO(
+                        l.getId(),
+                        l.getTitulo(),
+                        l.getAutor(),
+                        l.getEditora(),
+                        l.getAno_publicacao(),
+                        l.getGenero().name(),
+                        l.getIdioma().name(),
+                        l.getStatusLivro(),
+                        l.getPreco(),
+                        l.getCapaPath(),
+                        l.getPdfPath()
+                )).toList();
     }
+    @PutMapping(value = "/{id}/capa", consumes = {"multipart/form-data"})
+    public ResponseEntity<String> atualizarCapa(
+            @PathVariable Long id,
+            @RequestPart("capa") MultipartFile capa
+    ) throws IOException {
+
+        Optional<Livro> livroOpt = livroRepository.findById(id);
+        if (livroOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado.");
+        }
+
+        Livro livro = livroOpt.get();
+
+        if (capa == null || capa.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Nenhuma capa enviada.");
+        }
+
+        String uploadDir = this.diretorio;
+        Files.createDirectories(Paths.get(uploadDir));
+
+        // Excluir capa anterior
+        if (livro.getCapaPath() != null) {
+            Path caminhoAntigo = Paths.get(uploadDir, livro.getCapaPath());
+            Files.deleteIfExists(caminhoAntigo);
+        }
+        String nomeCapa = System.currentTimeMillis() + "_" +
+                capa.getOriginalFilename().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+
+        Path novoCaminho = Paths.get(uploadDir, nomeCapa);
+        capa.transferTo(novoCaminho.toFile());
+
+        livro.setCapaPath(nomeCapa);
+        livroRepository.save(livro);
+
+        return ResponseEntity.ok("Capa atualizada com sucesso!");
+    }
+    @GetMapping("/status")
+    public Map<String, Long> getStatusLivros() {
+        long ativos = livroRepository.countByStatusLivro(Status.ATIVO);
+        long inativos = livroRepository.countByStatusLivro(Status.INATIVO);
+
+        Map<String, Long> response = new HashMap<>();
+        response.put("ativos", ativos);
+        response.put("inativos", inativos);
+
+        return response;
+    }
+
 }

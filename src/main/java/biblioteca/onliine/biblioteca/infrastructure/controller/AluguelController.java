@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -29,7 +30,6 @@ public class AluguelController {
         this.aluguelRepository = aluguelRepository;
     }
 
-    // Mostra todos os alugueis ativos - apenas ADM e FUNCIONARIO
     @GetMapping
     public ResponseEntity<List<Aluguel>> listarTodosAtivos() {
         List<Aluguel> alugueis = aluguelService.findAllAtivos();
@@ -89,5 +89,10 @@ public class AluguelController {
     public ResponseEntity<List<Aluguel>> listarHistoricoAluguel() {
         List<Aluguel> historico = aluguelService.listarHistorico();
         return ResponseEntity.ok(historico);
+    }
+    @GetMapping("/relatorio-aluguel")
+    public ResponseEntity<?> relatorioAluguel() {
+        Map<String, Object> relatorio = aluguelService.gerarRelatorioAluguel();
+        return ResponseEntity.ok(relatorio);
     }
 }

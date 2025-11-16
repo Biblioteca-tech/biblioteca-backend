@@ -13,7 +13,6 @@ public class FuncionarioService {
         this.funcionarioRepository = funcionarioRepository;
     }
 
-    // Método para deletar funcionário
     public void deletarFuncionario(Long id) {
         if (!funcionarioRepository.existsById(id)) {
             throw new RuntimeException("Funcionário não encontrado.");

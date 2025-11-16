@@ -11,9 +11,9 @@ import java.util.Date;
 public class FuncionarioInputDTO {
     private String nome;
     private String email;
-    private Date data_nascimento;
+    private LocalDate data_nascimento;
     private String cpf;
-    private String senha; // Adicionado para a atualização completa
+    private String senha;
 
     private LocalDate dataAdmissao;
     private String numeroTelefone;

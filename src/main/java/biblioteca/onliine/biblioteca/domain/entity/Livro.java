@@ -7,11 +7,16 @@ import biblioteca.onliine.biblioteca.domain.port.repository.Ativavel;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "livro")
 public class Livro implements Ativavel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,10 +29,14 @@ public class Livro implements Ativavel {
 
     private GeneroLivro genero;
 
+    @Lob
     private String sinopse;
 
     @Enumerated(EnumType.STRING)
     private IdiomaLivro idioma;
+
+    @ManyToMany(mappedBy = "livros")
+    private List<Cliente> clientes = new ArrayList<>();
 
     private Double preco;
     private String capaPath;
@@ -69,5 +78,17 @@ public class Livro implements Ativavel {
         this.idioma = idioma;
         this.preco = preco;
         this.statusLivro = statusLivro;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Livro livro = (Livro) o;
+        return Objects.equals(id, livro.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

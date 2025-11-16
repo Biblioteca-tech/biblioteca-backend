@@ -9,6 +9,7 @@ import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import biblioteca.onliine.biblioteca.usecase.service.AluguelService;
+import biblioteca.onliine.biblioteca.usecase.service.ClienteService;
 import biblioteca.onliine.biblioteca.usecase.service.ConfigUser;
 import biblioteca.onliine.biblioteca.usecase.service.EmailService;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -34,8 +36,9 @@ public class ClienteController {
     private final AluguelService aluguelService;
     private final PasswordEncoder passwordEncoder;
     private final AluguelRepository aluguelRepository;
+    private final ClienteService clienteService;
 
-    public ClienteController(AluguelRepository aluguelRepository,ClienteRepository clienteRepository, ConfigUser configUser, EmailService emailService, VendaRepository vendaRepository, AluguelService aluguelService,  PasswordEncoder passwordEncoder) {
+    public ClienteController(AluguelRepository aluguelRepository, ClienteRepository clienteRepository, ConfigUser configUser, EmailService emailService, VendaRepository vendaRepository, AluguelService aluguelService, PasswordEncoder passwordEncoder, ClienteService clienteService) {
         this.clienteRepository = clienteRepository;
         this.configUser = configUser;
         this.emailService = emailService;
@@ -43,6 +46,7 @@ public class ClienteController {
         this.aluguelService = aluguelService;
         this.passwordEncoder = passwordEncoder;
         this.aluguelRepository = aluguelRepository;
+        this.clienteService = clienteService;
     }
 
     @PutMapping("/trocar-senha/{id}")
@@ -120,7 +124,7 @@ public class ClienteController {
         if (body.containsKey("data_nascimento")) {
             try {
                 String dataStr = (String) body.get("data_nascimento");
-                Date data = java.sql.Date.valueOf(dataStr);
+                LocalDate data = LocalDate.parse(dataStr); // parse direto para LocalDate
                 cliente.setData_nascimento(data);
             } catch (Exception e) {
                 return ResponseEntity.badRequest().body("Formato de data inválido. Use yyyy-MM-dd.");
@@ -143,6 +147,4 @@ public class ClienteController {
         }
         return ResponseEntity.ok(cliente);
     }
-
-
 }

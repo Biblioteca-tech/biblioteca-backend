@@ -1,9 +1,13 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
-import biblioteca.onliine.biblioteca.domain.dto.FuncionarioInputDTO;
-import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
-import biblioteca.onliine.biblioteca.domain.entity.Livro;
+import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
+import biblioteca.onliine.biblioteca.domain.entity.Livro;
+import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
+import biblioteca.onliine.biblioteca.usecase.service.FuncionarioService;
+import biblioteca.onliine.biblioteca.usecase.service.LivroService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -11,21 +15,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.util.Optional;
-
-import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
-import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
-import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
-import biblioteca.onliine.biblioteca.domain.port.repository.FuncionarioRepository;
-import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
-import biblioteca.onliine.biblioteca.usecase.service.FuncionarioService; // Importe o FuncionarioService
-import biblioteca.onliine.biblioteca.usecase.service.LivroService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/funcionario")
