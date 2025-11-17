@@ -17,6 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
                     )
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                     .allowedHeaders("*")
+                    .exposedHeaders("X-Can-Download") // ESSA LINHA É OBRIGATÓRIA
                     .allowCredentials(true);
         }
 

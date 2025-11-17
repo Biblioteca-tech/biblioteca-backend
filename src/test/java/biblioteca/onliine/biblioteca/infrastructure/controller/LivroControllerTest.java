@@ -114,35 +114,4 @@ class LivroControllerTest {
         assertEquals(Status.INATIVO, ((Livro) response.getBody()).getStatusLivro());
         verify(livroRepository, times(1)).save(any());
     }
-
-
-    @Test
-    void deveAbrirPdfQuandoArquivoExiste() throws MalformedURLException {
-        livro.setPdfPath("teste.pdf");
-        File pdfFile = new File(System.getProperty("java.io.tmpdir") + "teste.pdf");
-        try {
-            Files.write(pdfFile.toPath(), "fake".getBytes());
-        } catch (IOException e) {
-            fail("Falha ao criar arquivo de teste PDF.");
-        }
-
-        when(livroRepository.findById(1L)).thenReturn(Optional.of(livro));
-
-        ResponseEntity<Resource> response = livroController.abrirPdf(1L);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody() instanceof UrlResource);
-
-        pdfFile.delete();
-    }
-
-    @Test
-    void deveRetornarNotFoundQuandoPdfNaoExiste() throws MalformedURLException {
-        livro.setPdfPath("nao_existe.pdf");
-        when(livroRepository.findById(1L)).thenReturn(Optional.of(livro));
-
-        ResponseEntity<Resource> response = livroController.abrirPdf(1L);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-    }
 }

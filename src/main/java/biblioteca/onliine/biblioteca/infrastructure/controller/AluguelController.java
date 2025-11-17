@@ -1,7 +1,9 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
+import biblioteca.onliine.biblioteca.domain.dto.AluguelDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
+import biblioteca.onliine.biblioteca.domain.entity.ClienteLivro;
 import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
 import biblioteca.onliine.biblioteca.usecase.service.AluguelService;
 import biblioteca.onliine.biblioteca.usecase.service.ClienteService;
@@ -31,12 +33,10 @@ public class AluguelController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Aluguel>> listarTodosAtivos() {
-        List<Aluguel> alugueis = aluguelService.findAllAtivos();
-        return ResponseEntity.ok(alugueis);
+    public ResponseEntity<?> listarTodosAtivos() {
+        return ResponseEntity.ok(aluguelService.findAllAtivosDTO());
     }
 
-    // Mostra alugueis de um cliente específico (ADM, FUNCIONARIO e o próprio cliente)
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<?> listarAlugueisPorCliente(@PathVariable Long clienteId) {
         Optional<Cliente> clienteOpt = clienteService.findById(clienteId);
@@ -57,10 +57,7 @@ public class AluguelController {
     }
 
     @PostMapping("/alugar")
-    public ResponseEntity<?> alugarLivro(
-            @RequestParam String email,
-            @RequestParam Long livroId,
-            @RequestParam(defaultValue = "7") int dias
+    public ResponseEntity<?> alugarLivro(@RequestParam String email, @RequestParam Long livroId, @RequestParam(defaultValue = "7") int dias
     ) {
         Optional<Cliente> clienteOpt = clienteService.findByEmail(email);
         if (clienteOpt.isEmpty()) {
@@ -70,7 +67,7 @@ public class AluguelController {
 
         try {
             Aluguel aluguel = aluguelService.alugarLivro(cliente.getId(), livroId, dias);
-            return ResponseEntity.status(HttpStatus.CREATED).body(aluguel);
+            return ResponseEntity.status(HttpStatus.CREATED).body(aluguelService.toDTO(aluguel));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -84,10 +81,14 @@ public class AluguelController {
         aluguelRepository.deleteById(aluguelId);
     }
 
-    // Endpoint para listar o histórico de aluguéis (todos)
     @GetMapping("/historico-aluguel")
-    public ResponseEntity<List<Aluguel>> listarHistoricoAluguel() {
-        List<Aluguel> historico = aluguelService.listarHistorico();
+    public ResponseEntity<List<AluguelDTO>> listarHistoricoAluguel() {
+        List<AluguelDTO> historico =
+                aluguelService.listarHistorico()
+                        .stream()
+                        .map(aluguelService::toDTO)
+                        .toList();
+
         return ResponseEntity.ok(historico);
     }
     @GetMapping("/relatorio-aluguel")

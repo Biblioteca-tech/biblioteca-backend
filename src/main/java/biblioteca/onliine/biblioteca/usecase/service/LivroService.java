@@ -5,15 +5,20 @@ import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class LivroService {
+
+    @Value("${spring.diretorio.iarley}")
+    private String caminhoPdf;
 
     private final LivroRepository livroRepository;
     private final ClienteRepository clienteRepository;
@@ -57,5 +62,14 @@ public class LivroService {
 
     public List<Livro> findAtivos() {
         return livroRepository.findByStatusLivro(Status.ATIVO);
+    }
+
+    public File buscarPdf(String nomeArquivoPdf) {
+        File arquivo = new File(caminhoPdf + nomeArquivoPdf);
+        if (!arquivo.exists()) {
+            throw new RuntimeException("PDF não encontrado");
+        }
+
+        return arquivo;
     }
 }

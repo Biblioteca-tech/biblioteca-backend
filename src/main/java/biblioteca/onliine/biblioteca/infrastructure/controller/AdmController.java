@@ -3,23 +3,36 @@ package biblioteca.onliine.biblioteca.infrastructure.controller;
 import biblioteca.onliine.biblioteca.domain.dto.AdminUpdateDTO;
 import biblioteca.onliine.biblioteca.domain.dto.FuncionarioInputDTO;
 import biblioteca.onliine.biblioteca.domain.dto.GerenciarClientesDTO;
-import biblioteca.onliine.biblioteca.domain.entity.Administrador;
-import biblioteca.onliine.biblioteca.domain.entity.Cliente;
-import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
-import biblioteca.onliine.biblioteca.domain.entity.Venda;
+import biblioteca.onliine.biblioteca.domain.entity.*;
 import biblioteca.onliine.biblioteca.domain.port.repository.*;
 import biblioteca.onliine.biblioteca.usecase.service.AdmService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/adm")
 public class AdmController {
+
+    @Value("${spring.diretorio.iarley}")
+    private String diretorio;
 
     private final ClienteRepository clienteRepository;
     private final AdmRepository admRepository;
@@ -156,6 +169,22 @@ public class AdmController {
     @PutMapping("/perfil")
     public Administrador atualizarPerfil(@RequestBody AdminUpdateDTO dto) {
         return admService.atualizarPerfil(dto);
+    }
+
+    @GetMapping(value = "/pdf/{livroId}")
+    public ResponseEntity<Resource> abrirPdf(@PathVariable Long livroId) throws MalformedURLException {
+        Optional<Livro> livroOpt = livroRepository.findById(livroId);
+        if (livroOpt.isEmpty()) return ResponseEntity.notFound().build();
+        Livro livro = livroOpt.get();
+
+        File file = new File(this.diretorio + livro.getPdfPath());
+        if (!file.exists()) return ResponseEntity.notFound().build();
+
+        UrlResource resource = new UrlResource(file.toURI());
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + livro.getPdfPath() + "\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(resource);
     }
 
 

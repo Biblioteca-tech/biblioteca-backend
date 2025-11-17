@@ -1,5 +1,6 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
+import biblioteca.onliine.biblioteca.domain.TipoAcesso;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.ClienteLivro;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
@@ -49,6 +50,7 @@ public class VendaController {
 
         ClienteLivro clienteLivro = new ClienteLivro();
         clienteLivro.setCliente(cliente);
+        clienteLivro.setTipoAcesso(TipoAcesso.COMPRADO);
         clienteLivro.setLivro(livro);
         clienteLivroRepository.save(clienteLivro);
 

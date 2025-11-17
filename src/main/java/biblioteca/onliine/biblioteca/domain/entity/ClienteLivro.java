@@ -1,6 +1,7 @@
 package biblioteca.onliine.biblioteca.domain.entity;
 
 
+import biblioteca.onliine.biblioteca.domain.TipoAcesso;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,5 +27,8 @@ public class ClienteLivro {
 
     @Column(name = "data_adicionado")
     private LocalDateTime dataAdicionado = LocalDateTime.now();
+
+    @Enumerated(EnumType.STRING)
+    private TipoAcesso tipoAcesso;
 
 }

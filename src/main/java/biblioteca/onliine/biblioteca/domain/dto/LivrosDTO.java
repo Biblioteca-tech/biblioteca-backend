@@ -10,5 +10,6 @@ public record LivrosDTO (
     String sinopse,
     String idioma,
     String capaPath,
-    Double preco
+    Double preco,
+    String pdfPath
 ){}

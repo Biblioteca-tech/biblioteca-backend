@@ -9,6 +9,10 @@ public class AccessRoutesUtil {
             "/livros/{id}",
             "/livros/pdf/{livroId}",
             "/livros/capa/{fileName}",
+            "/livros/abrir/pdf/{livroId}",
+            "/livros/cliente/pdf/{livroId}",
+            "/adm/pdf/{livroId}",
+            "/pdf/{id}"
     };
     public static final String[] ROTAS_FUNCIONARIO = {
             "/funcionario/**",
@@ -24,7 +28,8 @@ public class AccessRoutesUtil {
             "/livros/ativos",
             "/funcionario/livros",
             "/adm/atualizarDados/{id}",
-            "/cliente/ativos"
+            "/cliente/ativos",
+
     };
 
     public static  final String[] ROTAS_CLIENTE = {

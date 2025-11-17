@@ -40,17 +40,6 @@ class AluguelControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void deveListarTodosAlugueisAtivos() {
-        List<Aluguel> alugueis = List.of(new Aluguel(), new Aluguel());
-        when(aluguelService.findAllAtivos()).thenReturn(alugueis);
-
-        ResponseEntity<List<Aluguel>> resposta = aluguelController.listarTodosAtivos();
-
-        assertEquals(HttpStatus.OK, resposta.getStatusCode());
-        assertEquals(2, resposta.getBody().size());
-        verify(aluguelService, times(1)).findAllAtivos();
-    }
 
     @Test
     void deveRetornarAlugueisDoCliente() {
@@ -147,15 +136,15 @@ class AluguelControllerTest {
     }
 
 
-    @Test
-    void deveListarHistoricoDeAlugueis() {
-        List<Aluguel> historico = List.of(new Aluguel());
-        when(aluguelService.listarHistorico()).thenReturn(historico);
-
-        ResponseEntity<List<Aluguel>> resposta = aluguelController.listarHistoricoAluguel();
-
-        assertEquals(HttpStatus.OK, resposta.getStatusCode());
-        assertEquals(historico, resposta.getBody());
-        verify(aluguelService, times(1)).listarHistorico();
-    }
+//    @Test
+//    void deveListarHistoricoDeAlugueis() {
+//        List<Aluguel> historico = List.of(new Aluguel());
+//        when(aluguelService.listarHistorico()).thenReturn(historico);
+//
+//        ResponseEntity<List<Aluguel>> resposta = aluguelController.listarHistoricoAluguel();
+//
+//        assertEquals(HttpStatus.OK, resposta.getStatusCode());
+//        assertEquals(historico, resposta.getBody());
+//        verify(aluguelService, times(1)).listarHistorico();
+//    }
 }

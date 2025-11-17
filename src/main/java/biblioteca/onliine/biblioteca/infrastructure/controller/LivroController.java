@@ -1,10 +1,16 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
 import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.TipoAcesso;
 import biblioteca.onliine.biblioteca.domain.dto.BuscaLivrosIdDTO;
 import biblioteca.onliine.biblioteca.domain.dto.ListarLivrosDTO;
 import biblioteca.onliine.biblioteca.domain.dto.LivrosDTO;
+import biblioteca.onliine.biblioteca.domain.entity.Cliente;
+import biblioteca.onliine.biblioteca.domain.entity.ClienteLivro;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
+import biblioteca.onliine.biblioteca.domain.entity.TipoLocacao;
+import biblioteca.onliine.biblioteca.domain.port.repository.ClienteLivroRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
 import biblioteca.onliine.biblioteca.usecase.service.LivroService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +21,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,10 +32,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -40,13 +45,18 @@ public class LivroController {
     private final LivroRepository livroRepository;
     private final LivroService livroService;
     private final ObjectMapper objectMapper;
+    private final ClienteRepository clienteRepository;
+    private final ClienteLivroRepository clienteLivroRepository;
 
     public LivroController(LivroRepository livroRepository,
                            ObjectMapper objectMapper,
-                           LivroService livroService) {
+                           LivroService livroService,
+                           ClienteRepository clienteRepository, ClienteLivroRepository clienteLivroRepository) {
         this.livroRepository = livroRepository;
         this.objectMapper = objectMapper;
         this.livroService = livroService;
+        this.clienteRepository = clienteRepository;
+        this.clienteLivroRepository = clienteLivroRepository;
     }
 
     @PostMapping(value = "/cadastrar", consumes = {"multipart/form-data"})
@@ -123,24 +133,67 @@ public class LivroController {
                         l.getSinopse(),
                         l.getIdioma().name(),
                         l.getCapaPath(),
-                        l.getPreco()
+                        l.getPreco(),
+                        l.getPdfPath()
                 ))
                 .toList();
     }
+    
 
-    @GetMapping(value = "/pdf/{livroId}")
-    public ResponseEntity<Resource> abrirPdf(@PathVariable Long livroId) throws MalformedURLException {
-        Optional<Livro> livroOpt = livroRepository.findById(livroId);
-        if (livroOpt.isEmpty()) return ResponseEntity.notFound().build();
-        Livro livro = livroOpt.get();
+    @GetMapping("/pdf/{livroId}")
+    public ResponseEntity<?> abrirPdf(
+            @PathVariable Long livroId,
+            @AuthenticationPrincipal UserDetails userDetails) throws MalformedURLException {
 
-        File file = new File(this.diretorio + livro.getPdfPath());
-        if (!file.exists()) return ResponseEntity.notFound().build();
+        // -------------------------------------------------
+        // 1. Verifica se é funcionário ou admin
+        // -------------------------------------------------
+        boolean isFuncionario = userDetails.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_FUNCIONARIO".equals(a.getAuthority()) ||
+                        "ROLE_ADMIN".equals(a.getAuthority()));
 
-        UrlResource resource = new UrlResource(file.toURI());
+        // -------------------------------------------------
+        // 2. Busca o livro (sempre)
+        // -------------------------------------------------
+        Livro livro = livroRepository.findById(livroId)
+                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+
+        Path pdfPath = Paths.get(diretorio, livro.getPdfPath());
+        if (!Files.exists(pdfPath)) {
+            return ResponseEntity.notFound().build();
+        }
+        Resource resource = new UrlResource(pdfPath.toUri());
+
+        // -------------------------------------------------
+        // 3. Funcionário tem acesso total
+        // -------------------------------------------------
+        if (isFuncionario) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header("X-Can-Download", "true")
+                    .body(resource);
+        }
+
+        // -------------------------------------------------
+        // 4. Cliente comum – verifica relação ClienteLivro
+        // -------------------------------------------------
+        Cliente cliente = clienteRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+
+        List<ClienteLivro> relacoes = clienteLivroRepository
+                .findByClienteIdAndLivroId(cliente.getId(), livroId);
+
+        if (relacoes.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Você não tem acesso a este livro."));
+        }
+
+        boolean canDownload = relacoes.stream()
+                .anyMatch(r -> r.getTipoAcesso() == TipoAcesso.COMPRADO);
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + livro.getPdfPath() + "\"")
                 .contentType(MediaType.APPLICATION_PDF)
+                .header("X-Can-Download", String.valueOf(canDownload))
                 .body(resource);
     }
 
