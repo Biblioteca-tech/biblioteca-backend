@@ -97,7 +97,7 @@ CREATE TABLE aluguel (
     data_aluguel DATETIME,
     data_devolucao DATETIME,
     valor_aluguel DECIMAL(10,2),
-    status ENUM('ATIVO', 'DEVOLVIDO', 'ATRASADO', 'CANCELADO'),
+    estadoRegistro ENUM('ATIVO', 'DEVOLVIDO', 'ATRASADO', 'CANCELADO'),
     FOREIGN KEY (cliente_id) REFERENCES cliente(id),
     FOREIGN KEY (livro_id) REFERENCES livro(id)
 );

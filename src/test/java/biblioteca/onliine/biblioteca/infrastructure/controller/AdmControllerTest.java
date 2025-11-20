@@ -1,6 +1,6 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
-import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Funcionario;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
@@ -87,7 +87,7 @@ public class AdmControllerTest {
         mockLivroAtivo = new Livro();
         mockLivroAtivo.setId(ID_EXISTENTE);
         mockLivroAtivo.setTitulo("Livro Teste");
-        mockLivroAtivo.setStatusLivro(Status.ATIVO);
+        mockLivroAtivo.setEstadoRegistroLivro(EstadoRegistro.ATIVO);
 
         mockVenda = new Venda();
         mockVenda.setId(ID_EXISTENTE);
@@ -263,7 +263,7 @@ public class AdmControllerTest {
         // ARRANGE
         Livro livroInativo = new Livro();
         livroInativo.setId(ID_EXISTENTE);
-        livroInativo.setStatusLivro(Status.INATIVO);
+        livroInativo.setEstadoRegistroLivro(EstadoRegistro.INATIVO);
 
         when(livroRepository.findById(ID_EXISTENTE)).thenReturn(Optional.of(livroInativo));
         when(livroRepository.save(any(Livro.class))).thenReturn(livroInativo);
@@ -277,7 +277,7 @@ public class AdmControllerTest {
 
         // VERIFY: Verifica se o status foi alterado para ATIVO antes de salvar
         verify(livroRepository, times(1)).findById(ID_EXISTENTE);
-        verify(livroRepository, times(1)).save(argThat(livro -> livro.getStatusLivro() == Status.ATIVO));
+        verify(livroRepository, times(1)).save(argThat(livro -> livro.getEstadoRegistroLivro() == EstadoRegistro.ATIVO));
     }
 
     @Test
@@ -311,7 +311,7 @@ public class AdmControllerTest {
 
         // VERIFY: Verifica se o status foi alterado para INATIVO antes de salvar
         verify(livroRepository, times(1)).findById(ID_EXISTENTE);
-        verify(livroRepository, times(1)).save(argThat(livro -> livro.getStatusLivro() == Status.INATIVO));
+        verify(livroRepository, times(1)).save(argThat(livro -> livro.getEstadoRegistroLivro() == EstadoRegistro.INATIVO));
     }
 
     @Test

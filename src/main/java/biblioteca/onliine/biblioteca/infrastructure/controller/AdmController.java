@@ -16,12 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.List;
@@ -64,7 +58,7 @@ public class AdmController {
                         l.getEmail(),
                         l.getData_nascimento(),
                         l.getCpf(),
-                        l.getStatusCliente()
+                        l.getEstadoRegistroCliente()
                 )).toList();
     }
 

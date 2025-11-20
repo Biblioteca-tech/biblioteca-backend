@@ -41,7 +41,7 @@ public class FuncionarioController {
         this.clienteRepository = clienteRepository;
         this.aluguelRepository = aluguelRepository;
         this.livroRepository = livroRepository;
-        this.funcionarioService = funcionarioService; // Inicialize o service
+        this.funcionarioService = funcionarioService;
     }
 
 

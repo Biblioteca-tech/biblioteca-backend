@@ -2,7 +2,7 @@ package biblioteca.onliine.biblioteca.domain.dto;
 
 import biblioteca.onliine.biblioteca.domain.GeneroLivro;
 import biblioteca.onliine.biblioteca.domain.IdiomaLivro;
-import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 
 public record BuscaLivrosIdDTO (
         Long id,
@@ -14,7 +14,7 @@ public record BuscaLivrosIdDTO (
         String sinopse,
         IdiomaLivro idioma,
         Double preco,
-        Status statusLivro,
+        EstadoRegistro estadoRegistroLivro,
         String pdfPath,
         String capaPath
 ){

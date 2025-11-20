@@ -142,19 +142,24 @@ public class AluguelService {
     }
 
     public Map<String, Object> gerarRelatorioAluguel() {
-
         List<Aluguel> alugueis = aluguelRepository.findAll();
 
-        long quantidade = alugueis.size();
+        long totalLocacoes = alugueis.size(); // total de aluguéis registrados
         double totalRecebido = alugueis.stream()
                 .mapToDouble(Aluguel::getValorAluguel)
                 .sum();
 
+        // Objeto de transações do JEITO que o FRONT espera
+        Map<String, Object> transacoes = new HashMap<>();
+        transacoes.put("locacao", totalLocacoes);
+        transacoes.put("compra", 0);
+
         Map<String, Object> relatorio = new HashMap<>();
-        relatorio.put("quantidade", quantidade);
+        relatorio.put("transacoes", transacoes);
         relatorio.put("totalRecebido", totalRecebido);
         relatorio.put("alugueis", alugueis);
 
         return relatorio;
     }
+
 }

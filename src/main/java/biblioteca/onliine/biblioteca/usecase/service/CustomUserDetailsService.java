@@ -1,7 +1,6 @@
 package biblioteca.onliine.biblioteca.usecase.service;
 
-import biblioteca.onliine.biblioteca.domain.Status;
-import biblioteca.onliine.biblioteca.domain.entity.Cliente;
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 import biblioteca.onliine.biblioteca.domain.entity.Usuario;
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.UsuarioRepository;
@@ -28,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("Usuário não encontrado com email: " + email);
         }
 
-        if (usuario.getStatusCliente() == Status.INATIVO) {
+        if (usuario.getEstadoRegistroCliente() == EstadoRegistro.INATIVO) {
             throw new UsernameNotFoundException("Usuário inativo: " + email);
         }
 

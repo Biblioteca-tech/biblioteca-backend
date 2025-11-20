@@ -1,6 +1,6 @@
 package biblioteca.onliine.biblioteca.usecase.service;
 
-import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Usuario;
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
@@ -51,14 +51,14 @@ public class CustomUserDetailsServiceTest {
         mockUsuarioAtivo.setId(1L);
         mockUsuarioAtivo.setEmail(EMAIL_ATIVO);
         mockUsuarioAtivo.setSenha(SENHA_HASH);
-        mockUsuarioAtivo.setStatusCliente(Status.ATIVO);
+        mockUsuarioAtivo.setEstadoRegistroCliente(EstadoRegistro.ATIVO);
 
         // 2. Usuário Inativo
         mockUsuarioInativo = new Cliente();
         mockUsuarioInativo.setId(2L);
         mockUsuarioInativo.setEmail(EMAIL_INATIVO);
         mockUsuarioInativo.setSenha(SENHA_HASH);
-        mockUsuarioInativo.setStatusCliente(Status.INATIVO);
+        mockUsuarioInativo.setEstadoRegistroCliente(EstadoRegistro.INATIVO);
 
         // Configura Mocks de Repositório (Todos os stubs estão no BeforeEach, por isso precisamos do LENIENT)
         when(usuarioRepository.findByEmail(EMAIL_ATIVO)).thenReturn(mockUsuarioAtivo);

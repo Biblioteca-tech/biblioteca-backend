@@ -1,6 +1,6 @@
 package biblioteca.onliine.biblioteca.domain.port.repository;
 
-import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -14,6 +14,6 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     Optional<Cliente> findByCpf(String cpf);
 
     boolean existsByLivros_Id(Long livroId);
-    List<Cliente> findByStatusCliente(Status status);
+    List<Cliente> findByEstadoRegistroCliente(EstadoRegistro estadoRegistro);
 
 }

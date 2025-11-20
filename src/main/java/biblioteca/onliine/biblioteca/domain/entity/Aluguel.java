@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @Builder
 @Table(name = "aluguel")
 public class Aluguel {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,5 +39,5 @@ public class Aluguel {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatusAluguel status; // ATIVO, DEVOLVIDO, ATRASADO, CANCELADO
+    private StatusAluguel status;
 }

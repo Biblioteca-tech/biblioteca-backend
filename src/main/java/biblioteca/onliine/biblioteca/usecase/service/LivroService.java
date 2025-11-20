@@ -1,21 +1,27 @@
 package biblioteca.onliine.biblioteca.usecase.service;
 
-import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
+import biblioteca.onliine.biblioteca.domain.entity.Venda;
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
+import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class LivroService {
+
+    private final VendaRepository vendaRepository;
 
     @Value("${spring.diretorio.iarley}")
     private String caminhoPdf;
@@ -61,7 +67,7 @@ public class LivroService {
     }
 
     public List<Livro> findAtivos() {
-        return livroRepository.findByStatusLivro(Status.ATIVO);
+        return livroRepository.findByEstadoRegistroLivro(EstadoRegistro.ATIVO);
     }
 
     public File buscarPdf(String nomeArquivoPdf) {
@@ -72,4 +78,18 @@ public class LivroService {
 
         return arquivo;
     }
+
+    public Map<String, Integer> gerarRelatorioIdiomas() {
+        List<Venda> vendas = vendaRepository.findAll();
+        Map<String, Integer> contagem = new HashMap<>();
+
+        for (Venda venda : vendas) {
+            String idioma = String.valueOf(venda.getLivro().getIdioma());
+
+            contagem.put(idioma, contagem.getOrDefault(idioma, 0) + 1);
+        }
+
+        return contagem;
+    }
+
 }

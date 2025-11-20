@@ -3,11 +3,9 @@ package biblioteca.onliine.biblioteca.infrastructure.controller;
 import biblioteca.onliine.biblioteca.domain.dto.AluguelDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
-import biblioteca.onliine.biblioteca.domain.entity.ClienteLivro;
 import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
 import biblioteca.onliine.biblioteca.usecase.service.AluguelService;
 import biblioteca.onliine.biblioteca.usecase.service.ClienteService;
-import biblioteca.onliine.biblioteca.usecase.service.LivroService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,38 +20,30 @@ public class AluguelController {
 
     private final AluguelService aluguelService;
     private final ClienteService clienteService;
-    private final LivroService livroService;
     private final AluguelRepository aluguelRepository;
 
-    public AluguelController(AluguelService aluguelService, ClienteService clienteService,  LivroService livroService, AluguelRepository aluguelRepository) {
+    public AluguelController(AluguelService aluguelService, ClienteService clienteService , AluguelRepository aluguelRepository) {
         this.aluguelService = aluguelService;
         this.clienteService = clienteService;
-        this.livroService = livroService;
         this.aluguelRepository = aluguelRepository;
     }
 
+    // LISTAR TODOS OS CLIENTE ATIVOS NA PLATAFORMA //
     @GetMapping
     public ResponseEntity<?> listarTodosAtivos() {
         return ResponseEntity.ok(aluguelService.findAllAtivosDTO());
     }
 
+    // BUSCAR O ALUGUEL DO CLIENTE POR ID //
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<?> listarAlugueisPorCliente(@PathVariable Long clienteId) {
         Optional<Cliente> clienteOpt = clienteService.findById(clienteId);
         if (clienteOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado");
         }
-
         Cliente cliente = clienteOpt.get();
         List<Aluguel> alugueis = aluguelService.findByCliente(cliente);
         return ResponseEntity.ok(alugueis);
-    }
-
-
-    @PostMapping
-    public ResponseEntity<?> criarAluguel(@RequestBody Aluguel aluguel) {
-        Aluguel salvo = aluguelService.save(aluguel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
     }
 
     @PostMapping("/alugar")

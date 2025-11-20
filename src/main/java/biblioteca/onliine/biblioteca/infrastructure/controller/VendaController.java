@@ -9,6 +9,7 @@ import biblioteca.onliine.biblioteca.domain.port.repository.ClienteLivroReposito
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
+import biblioteca.onliine.biblioteca.usecase.service.LivroService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,12 +28,14 @@ public class VendaController {
     private final VendaRepository vendaRepository;
     private final LivroRepository livroRepository;
     private final ClienteLivroRepository clienteLivroRepository;
+    private final LivroService  livroService;
 
-    public VendaController(ClienteRepository clienteRepository, VendaRepository vendaRepository, LivroRepository livroRepository,  ClienteLivroRepository clienteLivroRepository) {
+    public VendaController(LivroService livroService ,ClienteRepository clienteRepository, VendaRepository vendaRepository, LivroRepository livroRepository,  ClienteLivroRepository clienteLivroRepository) {
         this.clienteRepository = clienteRepository;
         this.vendaRepository = vendaRepository;
         this.livroRepository = livroRepository;
         this.clienteLivroRepository = clienteLivroRepository;
+        this.livroService = livroService;
     }
 
     @PostMapping("/vender")
@@ -91,5 +94,11 @@ public class VendaController {
 
         return ResponseEntity.ok(relatorio);
     }
+
+    @GetMapping("/relatorio-idiomas")
+    public ResponseEntity<?> relatorioIdiomas() {
+        return ResponseEntity.ok(livroService.gerarRelatorioIdiomas());
+    }
+
 
 }

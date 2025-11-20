@@ -1,6 +1,6 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
-import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 import biblioteca.onliine.biblioteca.domain.entity.Usuario;
 import biblioteca.onliine.biblioteca.domain.port.repository.UsuarioRepository;
 import org.springframework.http.HttpStatus;
@@ -17,13 +17,13 @@ public class UsuarioController {
     }
 
     @PutMapping("/alterarStatus/{usuarioId}")
-    public ResponseEntity<String> alternarStatusUsuario(@PathVariable Long usuarioId, @RequestParam Status novoStatus) {
+    public ResponseEntity<String> alternarStatusUsuario(@PathVariable Long usuarioId, @RequestParam EstadoRegistro novoEstadoRegistro) {
         Usuario usuario = usuarioRepository.findById(usuarioId).orElse(null);
         if (usuario == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado.");
         }
-        usuario.setStatusCliente(novoStatus);
+        usuario.setEstadoRegistroCliente(novoEstadoRegistro);
         usuarioRepository.save(usuario);
-        return ResponseEntity.ok("Status do usuário " + usuarioId + " alterado para " + novoStatus);
+        return ResponseEntity.ok("Status do usuário " + usuarioId + " alterado para " + novoEstadoRegistro);
     }
 }

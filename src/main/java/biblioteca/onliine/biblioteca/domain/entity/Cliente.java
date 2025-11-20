@@ -3,9 +3,7 @@ package biblioteca.onliine.biblioteca.domain.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -21,7 +19,6 @@ public class Cliente extends Usuario {
             inverseJoinColumns = @JoinColumn(name = "livro_id")
     )
     private List<Livro> livros;
-
 
     @Override
     public void atualizarSenha(String senha) {

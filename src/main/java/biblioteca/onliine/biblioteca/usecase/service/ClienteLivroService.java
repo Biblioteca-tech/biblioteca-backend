@@ -56,7 +56,7 @@ public class ClienteLivroService {
         dto.setLivroId(clienteLivro.getLivro().getId());
         dto.setTitulo(clienteLivro.getLivro().getTitulo());
         dto.setAutor(clienteLivro.getLivro().getAutor());
-        dto.setStatus(clienteLivro.getLivro().getStatusLivro().name());
+        dto.setStatus(clienteLivro.getLivro().getEstadoRegistroLivro().name());
         dto.setCapaPath(clienteLivro.getLivro().getCapaPath());
         dto.setPdfPath(clienteLivro.getLivro().getPdfPath());
         dto.setDataAdicionado(clienteLivro.getDataAdicionado().toString());

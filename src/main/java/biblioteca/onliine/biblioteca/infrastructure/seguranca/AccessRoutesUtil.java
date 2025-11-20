@@ -29,6 +29,7 @@ public class AccessRoutesUtil {
             "/funcionario/livros",
             "/adm/atualizarDados/{id}",
             "/cliente/ativos",
+            "/venda/relatorio-idiomas"
 
     };
 

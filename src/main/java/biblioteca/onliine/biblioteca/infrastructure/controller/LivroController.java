@@ -1,14 +1,13 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
-import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 import biblioteca.onliine.biblioteca.domain.TipoAcesso;
 import biblioteca.onliine.biblioteca.domain.dto.BuscaLivrosIdDTO;
 import biblioteca.onliine.biblioteca.domain.dto.ListarLivrosDTO;
-import biblioteca.onliine.biblioteca.domain.dto.LivrosDTO;
+import biblioteca.onliine.biblioteca.domain.dto.LivroResponseDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.ClienteLivro;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
-import biblioteca.onliine.biblioteca.domain.entity.TipoLocacao;
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteLivroRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
@@ -103,7 +102,7 @@ public class LivroController {
                 livroAtualizado.getSinopse(),
                 livroAtualizado.getIdioma(),
                 livroAtualizado.getPreco(),
-                livroAtualizado.getStatusLivro()
+                livroAtualizado.getEstadoRegistroLivro()
         );
 
         if (livroExistente.getPreco() == null || livroExistente.getPreco() < 0) {
@@ -120,10 +119,10 @@ public class LivroController {
     }
 
     @GetMapping("/ativos")
-    public List<LivrosDTO> getLivrosAtivos() {
-        return livroRepository.findByStatusLivro(Status.ATIVO)
+    public List<LivroResponseDTO> getLivrosAtivos() {
+        return livroRepository.findByEstadoRegistroLivro(EstadoRegistro.ATIVO)
                 .stream()
-                .map(l -> new LivrosDTO(
+                .map(l -> new LivroResponseDTO(
                         l.getId(),
                         l.getTitulo(),
                         l.getAutor(),
@@ -239,7 +238,7 @@ public class LivroController {
                 livro.getSinopse(),
                 livro.getIdioma(),
                 livro.getPreco(),
-                livro.getStatusLivro(),
+                livro.getEstadoRegistroLivro(),
                 livro.getPdfPath(),
                 livro.getCapaPath()
         );
@@ -255,10 +254,10 @@ public class LivroController {
             return ResponseEntity.notFound().build();
         }
         Livro livro = optionalLivro.get();
-        if (Status.ATIVO.equals(livro.getStatusLivro())) {
-            livro.setStatusLivro(Status.INATIVO);
+        if (EstadoRegistro.ATIVO.equals(livro.getEstadoRegistroLivro())) {
+            livro.setEstadoRegistroLivro(EstadoRegistro.INATIVO);
         } else {
-            livro.setStatusLivro(Status.ATIVO);
+            livro.setEstadoRegistroLivro(EstadoRegistro.ATIVO);
         }
         livroRepository.save(livro);
         return ResponseEntity.ok(livro);
@@ -276,7 +275,7 @@ public class LivroController {
                         l.getAno_publicacao(),
                         l.getGenero().name(),
                         l.getIdioma().name(),
-                        l.getStatusLivro(),
+                        l.getEstadoRegistroLivro(),
                         l.getPreco(),
                         l.getCapaPath(),
                         l.getPdfPath()
@@ -319,8 +318,8 @@ public class LivroController {
     }
     @GetMapping("/status")
     public Map<String, Long> getStatusLivros() {
-        long ativos = livroRepository.countByStatusLivro(Status.ATIVO);
-        long inativos = livroRepository.countByStatusLivro(Status.INATIVO);
+        long ativos = livroRepository.countByEstadoRegistroLivro(EstadoRegistro.ATIVO);
+        long inativos = livroRepository.countByEstadoRegistroLivro(EstadoRegistro.INATIVO);
 
         Map<String, Long> response = new HashMap<>();
         response.put("ativos", ativos);

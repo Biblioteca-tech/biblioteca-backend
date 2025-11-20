@@ -1,6 +1,6 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
-import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 import biblioteca.onliine.biblioteca.domain.StatusAluguel;
 import biblioteca.onliine.biblioteca.domain.dto.LivroDTO;
 import biblioteca.onliine.biblioteca.domain.entity.Aluguel;
@@ -10,7 +10,6 @@ import biblioteca.onliine.biblioteca.domain.port.repository.AluguelRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.VendaRepository;
 import biblioteca.onliine.biblioteca.usecase.service.AluguelService;
-import biblioteca.onliine.biblioteca.usecase.service.ClienteService;
 import biblioteca.onliine.biblioteca.usecase.service.ConfigUser;
 import biblioteca.onliine.biblioteca.usecase.service.EmailService;
 import org.springframework.http.HttpStatus;
@@ -24,7 +23,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/cliente")
@@ -36,9 +34,8 @@ public class ClienteController {
     private final AluguelService aluguelService;
     private final PasswordEncoder passwordEncoder;
     private final AluguelRepository aluguelRepository;
-    private final ClienteService clienteService;
 
-    public ClienteController(AluguelRepository aluguelRepository, ClienteRepository clienteRepository, ConfigUser configUser, EmailService emailService, VendaRepository vendaRepository, AluguelService aluguelService, PasswordEncoder passwordEncoder, ClienteService clienteService) {
+    public ClienteController(AluguelRepository aluguelRepository, ClienteRepository clienteRepository, ConfigUser configUser, EmailService emailService, VendaRepository vendaRepository, AluguelService aluguelService, PasswordEncoder passwordEncoder) {
         this.clienteRepository = clienteRepository;
         this.configUser = configUser;
         this.emailService = emailService;
@@ -46,7 +43,6 @@ public class ClienteController {
         this.aluguelService = aluguelService;
         this.passwordEncoder = passwordEncoder;
         this.aluguelRepository = aluguelRepository;
-        this.clienteService = clienteService;
     }
 
     @PutMapping("/trocar-senha/{id}")
@@ -82,7 +78,7 @@ public class ClienteController {
 
         List<LivroDTO> livrosAlugados = alugueis.stream()
                 .map(aluguel -> new LivroDTO(aluguel.getLivro(), false)) // false = não é comprado
-                .collect(Collectors.toList());
+                .toList();
 
         List<LivroDTO> todosLivros = new ArrayList<>();
         todosLivros.addAll(livrosComprados);
@@ -149,7 +145,7 @@ public class ClienteController {
 
     @GetMapping("/ativos")
     public ResponseEntity<?> clientesAtivos() {
-        List<Cliente> clientes = clienteRepository.findByStatusCliente(Status.ATIVO);
+        List<Cliente> clientes = clienteRepository.findByEstadoRegistroCliente(EstadoRegistro.ATIVO);
         return ResponseEntity.ok(clientes);
     }
 }

@@ -1,6 +1,4 @@
 package biblioteca.onliine.biblioteca.domain.entity;
-
-
 import biblioteca.onliine.biblioteca.domain.TipoAcesso;
 import jakarta.persistence.*;
 import lombok.Getter;

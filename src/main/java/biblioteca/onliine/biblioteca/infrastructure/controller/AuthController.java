@@ -10,6 +10,7 @@ import biblioteca.onliine.biblioteca.domain.port.repository.ClienteRepository;
 import biblioteca.onliine.biblioteca.domain.port.repository.FuncionarioRepository;
 import biblioteca.onliine.biblioteca.infrastructure.seguranca.JwtService;
 import biblioteca.onliine.biblioteca.usecase.service.EmailService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -54,7 +55,8 @@ public class AuthController {
     @PostMapping("/cadastro")
     public ResponseEntity<?> cadastroUsuario(@RequestBody Cliente cliente) {
         if (clienteRepository.existsByEmail(cliente.getEmail())) {
-            return ResponseEntity.badRequest().body("Usuário já existe");
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", "Já existe um cliente cadastrado com esse email."));
         }
         cliente.setSenha(passwordEncoder.encode(cliente.getSenha()));
         cliente.getRoles().add("ROLE_CLIENTE");

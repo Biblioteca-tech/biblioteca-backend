@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.util.Date;
 
 @Entity
@@ -31,10 +32,4 @@ public class Comentario {
     @JoinColumn(name = "autor_id", nullable = false)
     private Usuario autor;
 
-    public String getNomeAutor() {
-        if (this.autor != null) {
-            return this.autor.getNome();
-        }
-        return "Desconhecido";
-    }
 }

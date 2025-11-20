@@ -1,11 +1,14 @@
 package biblioteca.onliine.biblioteca.domain.entity;
 
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 import biblioteca.onliine.biblioteca.domain.GeneroLivro;
 import biblioteca.onliine.biblioteca.domain.IdiomaLivro;
-import biblioteca.onliine.biblioteca.domain.Status;
-import biblioteca.onliine.biblioteca.domain.port.repository.Ativavel;
+import biblioteca.onliine.biblioteca.domain.port.repository.AtivavelRepository;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +20,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "livro")
-public class Livro implements Ativavel {
+public class Livro implements AtivavelRepository {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -43,19 +46,19 @@ public class Livro implements Ativavel {
     private String pdfPath;
 
     @Enumerated(EnumType.STRING)
-    private Status statusLivro = Status.ATIVO;
+    private EstadoRegistro estadoRegistroLivro = EstadoRegistro.ATIVO;
 
     @Override
     public void ativar() {
-        this.statusLivro = Status.ATIVO;
+        this.estadoRegistroLivro = EstadoRegistro.ATIVO;
     }
     @Override
     public void desativar() {
-        this.statusLivro = Status.INATIVO;
+        this.estadoRegistroLivro = EstadoRegistro.INATIVO;
     }
     @Override
     public boolean isAtivo() {
-        return this.statusLivro == Status.ATIVO;
+        return this.estadoRegistroLivro == EstadoRegistro.ATIVO;
     }
 
     public void atualizarDadosCompletos(
@@ -67,7 +70,7 @@ public class Livro implements Ativavel {
             String sinopse,
             IdiomaLivro idioma,
             Double preco,
-            Status statusLivro
+            EstadoRegistro estadoRegistroLivro
     ) {
         this.titulo = titulo;
         this.autor = autor;
@@ -77,7 +80,7 @@ public class Livro implements Ativavel {
         this.sinopse = sinopse;
         this.idioma = idioma;
         this.preco = preco;
-        this.statusLivro = statusLivro;
+        this.estadoRegistroLivro = estadoRegistroLivro;
     }
     @Override
     public boolean equals(Object o) {

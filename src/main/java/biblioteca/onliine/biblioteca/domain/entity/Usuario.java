@@ -1,22 +1,18 @@
 package biblioteca.onliine.biblioteca.domain.entity;
 
 import biblioteca.onliine.biblioteca.domain.GeneroPessoa;
-import biblioteca.onliine.biblioteca.domain.Status;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZoneId;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,7 +38,7 @@ public abstract class Usuario implements UserDetails {
     private GeneroPessoa genero;
 
     @Enumerated(EnumType.STRING)
-    private Status statusCliente = Status.ATIVO;
+    private EstadoRegistro estadoRegistroCliente = EstadoRegistro.ATIVO;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "usuario_roles", joinColumns = @JoinColumn(name = "usuario_id"))
@@ -52,8 +48,6 @@ public abstract class Usuario implements UserDetails {
     public void atualizarSenha(String senha) {
         this.senha = senha;
     }
-
-    // --- Métodos obrigatórios da interface UserDetails ---
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -75,10 +69,4 @@ public abstract class Usuario implements UserDetails {
     @Override
     public boolean isEnabled() { return true; }
 
-    public int getIdade() {
-        if (this.data_nascimento == null) {
-            return 0; // ou algum valor padrão que queira usar
-        }
-        return Period.between(this.data_nascimento, LocalDate.now()).getYears();
-    }
 }

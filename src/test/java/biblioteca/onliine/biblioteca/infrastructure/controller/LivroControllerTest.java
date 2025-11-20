@@ -1,6 +1,6 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
-import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
 import biblioteca.onliine.biblioteca.usecase.service.LivroService;
@@ -10,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
@@ -19,9 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -50,7 +45,7 @@ class LivroControllerTest {
         livro.setId(1L);
         livro.setTitulo("Livro Teste");
         livro.setPreco(50.0);
-        livro.setStatusLivro(Status.ATIVO);
+        livro.setEstadoRegistroLivro(EstadoRegistro.ATIVO);
 
         try {
             java.lang.reflect.Field field = LivroController.class.getDeclaredField("diretorio");
@@ -111,7 +106,7 @@ class LivroControllerTest {
         ResponseEntity<?> response = livroController.toggleStatus(1L);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(Status.INATIVO, ((Livro) response.getBody()).getStatusLivro());
+        assertEquals(EstadoRegistro.INATIVO, ((Livro) response.getBody()).getEstadoRegistroLivro());
         verify(livroRepository, times(1)).save(any());
     }
 }

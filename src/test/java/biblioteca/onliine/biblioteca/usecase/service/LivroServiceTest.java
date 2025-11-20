@@ -1,6 +1,6 @@
 package biblioteca.onliine.biblioteca.usecase.service;
 
-import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 import biblioteca.onliine.biblioteca.domain.entity.Livro;
 import biblioteca.onliine.biblioteca.domain.port.repository.LivroRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,7 +42,7 @@ public class LivroServiceTest {
         mockLivro = new Livro();
         mockLivro.setId(ID_EXISTENTE);
         mockLivro.setTitulo("Aventura Teste");
-        mockLivro.setStatusLivro(Status.ATIVO);
+        mockLivro.setEstadoRegistroLivro(EstadoRegistro.ATIVO);
     }
 
     // ====================================================================
@@ -86,7 +86,7 @@ public class LivroServiceTest {
     void deveRetornarLivrosAtivos() {
         // ARRANGE
         List<Livro> listaAtivos = Collections.singletonList(mockLivro);
-        when(livroRepository.findByStatusLivro(Status.ATIVO)).thenReturn(listaAtivos);
+        when(livroRepository.findByEstadoRegistroLivro(EstadoRegistro.ATIVO)).thenReturn(listaAtivos);
 
         // ACT
         List<Livro> resultado = livroService.findAtivos();
@@ -95,7 +95,7 @@ public class LivroServiceTest {
         assertEquals(1, resultado.size());
 
         // VERIFY
-        verify(livroRepository, times(1)).findByStatusLivro(Status.ATIVO);
+        verify(livroRepository, times(1)).findByEstadoRegistroLivro(EstadoRegistro.ATIVO);
     }
 
     // ====================================================================

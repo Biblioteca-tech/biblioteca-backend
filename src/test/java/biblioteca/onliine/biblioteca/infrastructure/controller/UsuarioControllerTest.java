@@ -1,6 +1,6 @@
 package biblioteca.onliine.biblioteca.infrastructure.controller;
 
-import biblioteca.onliine.biblioteca.domain.Status;
+import biblioteca.onliine.biblioteca.domain.EstadoRegistro;
 import biblioteca.onliine.biblioteca.domain.entity.Cliente;
 import biblioteca.onliine.biblioteca.domain.entity.Usuario;
 import biblioteca.onliine.biblioteca.domain.port.repository.UsuarioRepository;
@@ -35,16 +35,16 @@ class UsuarioControllerTest {
 
         Usuario usuario = new Cliente();
         usuario.setId(usuarioId);
-        usuario.setStatusCliente(Status.ATIVO);
+        usuario.setEstadoRegistroCliente(EstadoRegistro.ATIVO);
 
         when(usuarioRepository.findById(usuarioId)).thenReturn(Optional.of(usuario));
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
 
-        ResponseEntity<String> resposta = usuarioController.alternarStatusUsuario(usuarioId, Status.INATIVO);
+        ResponseEntity<String> resposta = usuarioController.alternarStatusUsuario(usuarioId, EstadoRegistro.INATIVO);
 
         assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertEquals("Status do usuário 1 alterado para INATIVO", resposta.getBody());
-        assertEquals(Status.INATIVO, usuario.getStatusCliente());
+        assertEquals(EstadoRegistro.INATIVO, usuario.getEstadoRegistroCliente());
         verify(usuarioRepository).save(usuario);
     }
 
@@ -53,7 +53,7 @@ class UsuarioControllerTest {
         Long usuarioId = 99L;
         when(usuarioRepository.findById(usuarioId)).thenReturn(Optional.empty());
 
-        ResponseEntity<String> resposta = usuarioController.alternarStatusUsuario(usuarioId, Status.ATIVO);
+        ResponseEntity<String> resposta = usuarioController.alternarStatusUsuario(usuarioId, EstadoRegistro.ATIVO);
 
         assertEquals(HttpStatus.NOT_FOUND, resposta.getStatusCode());
         assertEquals("Usuário não encontrado.", resposta.getBody());
