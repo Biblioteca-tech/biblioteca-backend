@@ -200,18 +200,22 @@ public class LivroController {
     @GetMapping("/capa/{fileName}")
     public ResponseEntity<Resource> getCapa(@PathVariable String fileName) throws IOException {
         String uploadDir = this.diretorio;
-        File file = new File(uploadDir + fileName);
 
-        if (!file.exists()) return ResponseEntity.notFound().build();
+        Path caminho = Paths.get(uploadDir, fileName);
 
-        UrlResource resource = new UrlResource(file.toURI());
-        String contentType = Files.probeContentType(file.toPath());
+        if (!Files.exists(caminho)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        UrlResource resource = new UrlResource(caminho.toUri());
+        String contentType = Files.probeContentType(caminho);
 
         if (contentType == null || contentType.equals("application/octet-stream")) {
-            String lowerCaseFileName = fileName.toLowerCase();
-            if (lowerCaseFileName.endsWith(".webp")) contentType = "image/webp";
-            else if (lowerCaseFileName.endsWith(".jpg") || lowerCaseFileName.endsWith(".jpeg")) contentType = "image/jpeg";
-            else if (lowerCaseFileName.endsWith(".png")) contentType = "image/png";
+            String lowerCase = fileName.toLowerCase();
+
+            if (lowerCase.endsWith(".png")) contentType = "image/png";
+            else if (lowerCase.endsWith(".jpg") || lowerCase.endsWith(".jpeg")) contentType = "image/jpeg";
+            else if (lowerCase.endsWith(".webp")) contentType = "image/webp";
             else contentType = "application/octet-stream";
         }
 

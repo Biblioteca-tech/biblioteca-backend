@@ -10,14 +10,13 @@ public class WebConfig implements WebMvcConfigurer {
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/**")
                     .allowedOrigins(
-                            "http://localhost:8080",
-                            "http://localhost:5173",
                             "http://localhost:5175",
-                            "https://vacciniaceous-bryn-unperfumed.ngrok-free.dev/"
+                            "https://biblioteca-frontend-bay.vercel.app/",
+                            "https://app.abracos.tech/"
                     )
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                     .allowedHeaders("*")
-                    .exposedHeaders("X-Can-Download") // ESSA LINHA É OBRIGATÓRIA
+                    .exposedHeaders("X-Can-Download")
                     .allowCredentials(true);
         }
 

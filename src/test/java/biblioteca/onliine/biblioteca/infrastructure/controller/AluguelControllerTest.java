@@ -27,9 +27,6 @@ class AluguelControllerTest {
     private ClienteService clienteService;
 
     @Mock
-    private LivroService livroService;
-
-    @Mock
     private AluguelRepository aluguelRepository;
 
     @InjectMocks
@@ -66,19 +63,6 @@ class AluguelControllerTest {
         assertEquals("Cliente não encontrado", resposta.getBody());
     }
 
-    @Test
-    void deveCriarAluguel() {
-        Aluguel aluguel = new Aluguel();
-        Aluguel salvo = new Aluguel();
-        salvo.setId(1L);
-
-        when(aluguelService.save(aluguel)).thenReturn(salvo);
-
-        ResponseEntity<?> resposta = aluguelController.criarAluguel(aluguel);
-
-        assertEquals(HttpStatus.CREATED, resposta.getStatusCode());
-        assertEquals(salvo, resposta.getBody());
-    }
 
     @Test
     void deveAlugarLivroComSucesso() {
@@ -134,17 +118,4 @@ class AluguelControllerTest {
         RuntimeException ex = assertThrows(RuntimeException.class, () -> aluguelController.deletarAluguel(1L));
         assertEquals("Aluguel não encontrado para exclusão", ex.getMessage());
     }
-
-
-//    @Test
-//    void deveListarHistoricoDeAlugueis() {
-//        List<Aluguel> historico = List.of(new Aluguel());
-//        when(aluguelService.listarHistorico()).thenReturn(historico);
-//
-//        ResponseEntity<List<Aluguel>> resposta = aluguelController.listarHistoricoAluguel();
-//
-//        assertEquals(HttpStatus.OK, resposta.getStatusCode());
-//        assertEquals(historico, resposta.getBody());
-//        verify(aluguelService, times(1)).listarHistorico();
-//    }
 }

@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -82,8 +81,10 @@ public class AluguelController {
         return ResponseEntity.ok(historico);
     }
     @GetMapping("/relatorio-aluguel")
-    public ResponseEntity<?> relatorioAluguel() {
-        Map<String, Object> relatorio = aluguelService.gerarRelatorioAluguel();
-        return ResponseEntity.ok(relatorio);
+    public List<AluguelDTO> listar() {
+        return aluguelService.listarHistorico()
+                .stream()
+                .map(aluguelService::toDTO)
+                .toList();
     }
 }

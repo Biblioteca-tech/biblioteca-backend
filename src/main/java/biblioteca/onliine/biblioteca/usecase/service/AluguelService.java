@@ -116,7 +116,6 @@ public class AluguelService {
     public List<Aluguel> listarHistorico() {
         return aluguelRepository.findAll();
     }
-
     @Scheduled(fixedRate = 30000)
     @Transactional
     public void verificarAlugueisVencidos() {
