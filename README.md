@@ -19,6 +19,7 @@ O projeto foi desenvolvido em **Java (Spring Boot)** no backend e está hospedad
 
 - **Java 21+**
 - **Spring Boot** (REST APIs)
+- **Spring Security + JWT**
 - **Google Cloud Platform (GCP)** para hospedagem e execução
 - **Git/GitHub** para versionamento e colaboração
 - **Banco de Dados** (MySQL)
@@ -56,3 +57,4 @@ mvn spring-boot:run
 
 ```
 # Desenvolvido por:
+Projeto desenvolvido com foco em boas práticas, segurança, arquitetura escalável e aprendizado contínuo.
